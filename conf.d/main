@@ -110,3 +110,5 @@ systemctl enable emby-server.service
 mkdir -p /var/lib/emby-server/config/
 mv /usr/local/src/emby-branding.xml  /var/lib/emby-server/config/branding.xml
 
+# add Emby to monit configuration
+ln -s /etc/monit/monitrc.d/emby-server /etc/monit/conf.d/emby-server

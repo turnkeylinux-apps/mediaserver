@@ -1,0 +1,22 @@
+ check process emby-server with pidfile /var/run/emby-server.pid
+   group emby-server
+   start program = "/etc/init.d/emby-server start"
+   stop program = "/etc/init.d/emby-server stop"
+   if failed port 8096 protocol http request "/" then restart
+   if 5 restarts with 5 cycles then timeout
+   depend emby_bin
+   depend emby_conf
+   depend emby_rc
+
+ check file emby_bin with path /usr/bin/emby-server
+   group emby-server
+   include /etc/monit/templates/rootbin
+
+ check file emby_conf with path /etc/emby-server.conf
+   group emby-server
+   include /etc/monit/templates/rootrc
+
+ check file emby_rc with path /etc/init.d/emby-server
+   group emby-server
+   include /etc/monit/templates/rootbin
+
