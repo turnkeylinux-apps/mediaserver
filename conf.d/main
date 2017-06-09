@@ -15,13 +15,10 @@ cat >/etc/apt/preferences.d/emby<<EOF
 Package: *
 Pin: release o=$REPO_ORIGIN
 Pin-Priority: 100
-Package: libmono* mono* libemby* emby-server
+Package: libmono* mono* libemby* libembysqlite3-0 embymagick emby-server
 Pin: release o=$REPO_ORIGIN
 Pin-Priority: 500
 EOF
-
-# install emby dependencies (from 3rd party repo)
-install mono-runtime libembymagickcore-6.q8-2 libembymagickwand-6.q8-2
 
 # install emby and configure it, HACK since emby blocks the shell when it starts from the deb install
 install emby-server &
@@ -96,9 +93,6 @@ sed -i "s|File Server|Media Server|" $CONF
 # Let the remaining setup tasks complete
 wait $EMBY_PID
 #sleep 300
-
-# Installed as part of Emby setup
-/etc/init.d/dbus stop
 
 # Remove Emby data directory (Necessary for emby to run properly in final appliance, Regenerated when emby first starts)
 rm -r /var/lib/emby-server

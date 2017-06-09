@@ -9,5 +9,4 @@ sudo
 
 python-requests  /* Emby dependency*/
 mediainfo        /* Emby dependency*/
-libsqlite3-dev	 /* Emby dependency*/
 
