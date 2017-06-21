@@ -37,6 +37,10 @@ until $($CURL http://$EMBY_SERVER:$EMBY_PORT); do
     sleep 5
 done
 
+# Rename the file server for WebDAVCGI
+CONF=/var/www/webdavcgi/webdav.conf
+sed -i "s|FILESERVER|MEDIASERVER|" $CONF
+
 # Rename the samba service
 CONF=/etc/samba/smb.conf
 sed -i "s|FILESERVER|MEDIASERVER|" $CONF
@@ -103,4 +107,3 @@ systemctl enable emby-server.service
 # add TurnKey credit to log in page
 mkdir -p /var/lib/emby-server/config/
 mv /usr/local/src/emby-branding.xml  /var/lib/emby-server/config/branding.xml
-
