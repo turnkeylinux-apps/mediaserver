@@ -79,17 +79,8 @@ chmod g+w /srv/storage/Photos
 CONF=/srv/storage/README.txt
 sed -i "s|File Server|Media Server|" $CONF
 
-# Configure Emby through web interface (Now handled in inithooks)
-# CURL="curl -c /tmp/cookie -b /tmp/cookie http://127.0.0.1:8096"
-
-# ${CURL}'/emby/startup/Configuration' --data 'UICulture=en-us' --data 'EnableInternetProviders=true' --data 'SaveLocalMeta=false' --data 'MetadataCountryCode=US' --data 'PreferredMetadataLanguage=en' > /dev/null
-# ${CURL}'/emby/startup/User' --data 'Name=emby' > /dev/null
-# ${CURL}'/emby/Library/VirtualFolders?collectionType=music&refreshLibrary=false&name=Music' --data '{"Paths":["/srv/storage/Music"]}' --header "Content-Type: application/json; charset=UTF-8" > /dev/null
-# ${CURL}'/emby/Library/VirtualFolders?collectionType=movies&refreshLibrary=false&name=Movies' --data '{"Paths":["/srv/storage/Movies"]}' --header "Content-Type: application/json; charset=UTF-8" > /dev/null
-# ${CURL}'/emby/Library/VirtualFolders?collectionType=tvshows&refreshLibrary=false&name=TV' --data '{"Paths":["/srv/storage/TVShows"]}' --header "Content-Type: application/json; charset=UTF-8" > /dev/null
-# ${CURL}'/emby/Library/VirtualFolders?collectionType=photos&refreshLibrary=false&name=Photos' --data '{"Paths":["/srv/storage/Photos"]}' --header "Content-Type: application/json; charset=UTF-8" > /dev/null
-# ${CURL}'/emby/System/Configuration/MetatdataPlugins/Autoset' --data '' > /dev/null
-# ${CURL}'/emby/Startup/Complete' --data '' > /dev/null
+# Configure Emby through web interface 
+# MOVED (Now handled in inithooks)
 
 # Stop the service
 /etc/init.d/emby-server stop
