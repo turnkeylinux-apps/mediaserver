@@ -1,3 +1,14 @@
+turnkey-mediaserver-14.2 (1) turnkey; urgency=low
+
+  * Emby version 3.2
+
+  * WebDAV CGI supersedes SambaDAV (#563).
+
+  * Note: Please refer to turnkey-core's changelog for changes common to all
+    appliances. Here we only describe changes specific to this appliance.
+
+ -- Ken Robinson <ken@turnkeylinux.org>  Wed, 21 Jun 2017 19:00:15 -0400
+ 
 turnkey-mediaserver-14.1 (1) turnkey; urgency=low
 
   * Initial public release of TurnKey Media Server thanks to Jonathan Struebel!

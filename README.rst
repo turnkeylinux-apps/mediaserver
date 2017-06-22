@@ -32,7 +32,7 @@ and on top of that:
       - Public storage.
       - CD-ROM with automount and umount hooks (/media/cdrom).
 
-- Access your files securely from anywhere via `SambaDAV`_:
+- Access your files securely from anywhere via `_WebDAVCGI`_:
    
    - Web GUI access to your files, with online previews of major formats and drag-n-drop
      support.
@@ -66,5 +66,5 @@ Credentials *(passwords set at first boot)*
 .. _Emby: https://emby.media/
 .. _TurnKey Core: https://www.turnkeylinux.org/core
 .. _Samba: http://www.samba.org/samba/what_is_samba.html
-.. _SambaDAV: https://github.com/1afa/sambadav
+.. _WebDAVCGI: https://github.com/DanRohde/webdavcgi
 
