@@ -98,3 +98,9 @@ systemctl enable emby-server.service
 # add TurnKey credit to log in page
 mkdir -p /var/lib/emby-server/config/
 mv /usr/local/src/emby-branding.xml  /var/lib/emby-server/config/branding.xml
+
+# Apache config for WebDavCGI
+a2dissite 000-default.conf 
+a2ensite webdavcgi.conf 
+
+

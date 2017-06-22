@@ -1,4 +1,4 @@
-SambaDAV/WebDAV: https://$ipaddr
+WebDAV:          https://$ipaddr
 Emby:            http://$ipaddr:8096
                  https://$ipaddr:8920
 Web shell:       https://$ipaddr:12320
