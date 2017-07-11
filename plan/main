@@ -4,6 +4,8 @@
 #include <turnkey/compression>
 #include <turnkey/nfs>
 
+
+libapache2-mod-php5
 php5-ssh2
 sudo
 

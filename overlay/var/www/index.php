@@ -64,23 +64,26 @@
                         $_SERVER{'HTTP_HOST'}; ?>:8920"><img
                         src="images/emby.png"/>Emby<br />(HTTPS)</a>
                     </div>
-                    <div style="float:left;width:30%"></div>
-
-                    <h2>Resources and references</h2>
-                    <ul>
-                        <li>
-                           <a href="https://github.com/MediaBrowser/Wiki/wiki">
-                           Emby documentation</a>
-                        </li>
-                        <li>
-                           <a href="http://samba.org/samba/docs">
-                           Samba documentation</a>
-                        </li>
-                        <li>
-                          <a href="http://www.turnkeylinux.org/mediaserver">
-                          TurnKey Mediaserver release notes</a>
-                        </li>
-                    </ul>
+                    <div style="float:left;width:10%"></div>
+                    <div style="float:left;width:10%"></div>
+                    <div style="float:left;width:65%">
+                        <h2>Resources and references</h2>
+                        <ul>
+                            <li>
+                               <a href="https://github.com/MediaBrowser/Wiki/wiki">
+                               Emby documentation</a>
+                            </li>
+                            <li>
+                               <a href="http://samba.org/samba/docs">
+                               Samba documentation</a>
+                            </li>
+                            <li>
+                              <a href="http://www.turnkeylinux.org/mediaserver">
+                              TurnKey Mediaserver release notes</a>
+                            </li>
+                        </ul>
+                    </div>
+    
                 </div>
             </div>
 

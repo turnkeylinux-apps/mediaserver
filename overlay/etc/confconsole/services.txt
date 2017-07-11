@@ -1,3 +1,4 @@
+Landing Page:    http://$ipaddr
 WebDAV:          https://$ipaddr
 Emby:            http://$ipaddr:8096
                  https://$ipaddr:8920
