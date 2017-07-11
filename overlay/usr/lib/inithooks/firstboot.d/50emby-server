@@ -35,3 +35,6 @@ fi
 if emby_running; then
     service emby-server stop
 fi
+
+# Start Emby up for first boot
+service emby-server restart
