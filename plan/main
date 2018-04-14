@@ -5,8 +5,8 @@
 #include <turnkey/nfs>
 
 
-libapache2-mod-php5
-php5-ssh2
+libapache2-mod-php
+php-ssh2
 sudo
 
 python-requests  /* Emby dependency*/

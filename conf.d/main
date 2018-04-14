@@ -1,33 +1,8 @@
 #!/bin/sh -ex
 
-install()
-{
-    apt-get update
-    DEBIAN_FRONTEND=noninteractive apt-get -y \
-        -o DPkg::Options::=--force-confdef \
-        -o DPkg::Options::=--force-confold \
-        install $@
-}
+apt install emby-server -y
 
-# setup pinning
-REPO_ORIGIN="obs://build.opensuse.org/home:emby/Debian_8.0"
-cat >/etc/apt/preferences.d/emby<<EOF
-Package: *
-Pin: release o=$REPO_ORIGIN
-Pin-Priority: 100
-Package: libmono* mono* libemby* libembysqlite3-0 embymagick emby-server
-Pin: release o=$REPO_ORIGIN
-Pin-Priority: 500
-EOF
-
-# install emby and configure it, HACK since emby blocks the shell when it starts from the deb install
-install emby-server &
-EMBY_PID=$!
-
-while [ ! -f /var/run/emby-server.pid ]
-do
-  sleep 10
-done
+service emby-server start &  EMBY_PID=$!
 
 # Delay until emby has finished starting
 EMBY_SERVER=127.0.0.1
@@ -48,7 +23,7 @@ sed -i "s|FileServer|MediaServer|" $CONF
 
 # Change default group to users
 usermod -g users emby
-chgrp -R users /usr/lib/emby-server
+chgrp -R users /var/lib/emby-server
 chgrp -R users /var/lib/emby-server/*
 
 # Change group assigned to emby
@@ -56,7 +31,7 @@ CONF=/etc/emby-server.conf
 echo "EMBY_GROUP=\"users\"" >> $CONF
 
 # Make restart script installed by emby executable
-chmod +x /usr/lib/emby-server/restart.sh
+#chmod +x /var/lib/emby-server/restart.sh
 
 #Setup default media folders
 mkdir -p /srv/storage/Music
@@ -79,21 +54,15 @@ chmod g+w /srv/storage/Photos
 CONF=/srv/storage/README.txt
 sed -i "s|File Server|Media Server|" $CONF
 
-# Configure Emby through web interface 
-# MOVED (Now handled in inithooks)
-
 # Stop the service
-/etc/init.d/emby-server stop
+service emby-server stop
 
-# Let the remaining setup tasks complete
-wait $EMBY_PID
-#sleep 300
+sleep 30
+
+adduser emby sudo
 
 # Remove Emby data directory (Necessary for emby to run properly in final appliance, Regenerated when emby first starts)
 rm -r /var/lib/emby-server
-
-# Enable Emby to start at boot
-systemctl enable emby-server.service
 
 # add TurnKey credit to log in page
 mkdir -p /var/lib/emby-server/config/
