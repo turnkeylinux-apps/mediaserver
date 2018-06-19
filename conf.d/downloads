@@ -6,9 +6,22 @@ dl() {
 }
 
 SRC="/usr/local/src"
-dl http://download.opensuse.org/repositories/home:emby/Debian_8.0/Release.key $SRC
+dl http://download.opensuse.org/repositories/home:emby/Debian_9.0/Release.key $SRC
 
 cd $SRC
-apt-key add Release.key
-rm Release.key
 
+apt-key add - < Release.key
+echo 'deb http://download.opensuse.org/repositories/home:/emby/Debian_9.0/ /' > /etc/apt/sources.list.d/emby-server.list
+
+# setup pinning
+REPO_ORIGIN="obs://build.opensuse.org/home:emby/Debian_9.0"
+cat >/etc/apt/preferences.d/emby<<EOF
+Package: *
+Pin: release o=$REPO_ORIGIN
+Pin-Priority: 100
+Package: libmono* mono* libemby* libembysqlite3-0 embymagick emby-server
+Pin: release o=$REPO_ORIGIN
+Pin-Priority: 500
+EOF
+
+apt update

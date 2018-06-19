@@ -1,3 +1,14 @@
+turnkey-fileserver-15.0 (1) turnkey; urgency=low
+
+  * Install Adminer directly from stretch/main repo
+
+  * Replace MySQL with MariaDB
+
+  * Note: Please refer to turnkey-core's changelog for changes common to all
+    appliances. Here we only describe changes specdific to this appliance.
+
+ -- Vlad Kuzmenko <vlad.work.here@gmail.com>  Thu, 15 Apr 2018 00:20:42 +0200
+
 turnkey-mediaserver-14.2 (1) turnkey; urgency=low
 
   * Emby version 3.2
