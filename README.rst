@@ -15,7 +15,7 @@ and on top of that:
 
 - Media server (`Emby`_) configurations:
    
-   - Web UI (https) listening on ports 8096 and 8920 (https).
+   - Web UI listening on ports 8096 (http) and 8920 (https).
    - Preconfigured path substitution for Samba access
    - Preconfigured Music, Movies, TVShows, and Photos directories
 
@@ -32,7 +32,13 @@ and on top of that:
       - Public storage.
       - CD-ROM with automount and umount hooks (/media/cdrom).
 
-- Access your files securely from anywhere via `_WebDAVCGI`_:
+- Webmin module for configuring Samba.
+- Includes popular compression support (zip, rar, bz2).
+- Includes flip to convert text file endings between UNIX and DOS
+  formats.
+- `WebDAV CGI`_ providing WebUI and WebDAV access.
+
+- Access your files securely from anywhere via `WebDAV CGI`_:
    
    - Web GUI access to your files, with online previews of major formats and drag-n-drop
      support.
@@ -40,31 +46,22 @@ and on top of that:
    - Pre-configured repositories (storage, user home directories).
 
 - Default storage: */srv/storage*
+- Accessing file server via samba on the command line::
 
-- Includes popular compression support (zip, rar, bz2).
-- Webmin module for configuring Samba.
+    smbclient //1.0.0.61/storage -Uroot
+    mount -t cifs //1.0.0.61/storage /mnt -o username=root,password=PASSWORD
 
 Credentials *(passwords set at first boot)*
 -------------------------------------------
 
-**File server access**: log in as user **root**
-
-  #. SambaDAV web file management: https://12.34.56.789/
-
-  #. From the command line::
-
-        smbclient //12.34.56.789/storage -Uroot
-        mount -t cifs //12.34.56.789/storage /mnt -o username=root,password=PASSWORD
-
-**Emby Web UI**: log in as username **emby**
-
-    #. https://12.34.56.789:8096/
-    #. https://12.34.56.789:8920/
-
+-  Emby webUI: username **emby**
 -  Webmin, Webshell, SSH, Samba: username **root**
+-  Web based file manager (WebDAV CGI):
+   
+   - username **root** (or Samba users)
 
 .. _Emby: https://emby.media/
 .. _TurnKey Core: https://www.turnkeylinux.org/core
 .. _Samba: http://www.samba.org/samba/what_is_samba.html
-.. _WebDAVCGI: https://github.com/DanRohde/webdavcgi
+.. _WebDAV CGI: https://github.com/DanRohde/webdavcgi
 
