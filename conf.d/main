@@ -1,5 +1,6 @@
 #!/bin/sh -ex
 
+apt update
 apt install emby-server -y
 
 service emby-server start &  EMBY_PID=$!

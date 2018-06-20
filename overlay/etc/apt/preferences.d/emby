@@ -1,0 +1,7 @@
+Package: *
+Pin: release o=obs://build.opensuse.org/home:emby/Debian_9.0
+Pin-Priority: 100
+
+Package: libmono* mono* libemby* libembysqlite3-0 embymagick emby-server
+Pin: release o=obs://build.opensuse.org/home:emby/Debian_9.0
+Pin-Priority: 500
