@@ -36,5 +36,16 @@ if emby_running; then
     service emby-server stop
 fi
 
+# https on Emby requires PKCS #12 certificate
+mkdir /etc/ssl/emby
+SSL_PASSWORD=$(mcookie)
+CERT_PATH=/etc/ssl/emby/cert.pfx
+openssl pkcs12 -export -out $CERT_PATH -inkey /etc/ssl/private/cert.key -in /etc/ssl/private/cert.pem -password pass:$SSL_PASSWORD
+chmod +r $CERT_PATH
+EMBY_CONFIG=/var/lib/emby-server/config/system.xml
+sed -i '/<CertificatePath*/d' $EMBY_CONFIG
+sed -i '/<CertificatePassword*/d' $EMBY_CONFIG
+sed -i "/<\/ServerConfiguration/i \ <CertificatePath>$CERT_PATH</CertificatePath>\n <CertificatePassword>$SSL_PASSWORD</CertificatePassword>" $EMBY_CONFIG
+
 # Start Emby up for first boot
 service emby-server restart
