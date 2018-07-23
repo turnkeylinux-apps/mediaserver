@@ -7,15 +7,11 @@ EMBY_SERVER=127.0.0.1
 EMBY_PORT=8096
 CURL="curl --output /dev/null --silent --head --fail"
 
-emby_running () {
-    local pidfile='/run/emby-server.pid'
-    [ -e "$pidfile" ] && kill -0 $( cat $pidfile )
-}
+chown -R emby:users /var/lib/emby
+systemctl enable emby-server@emby.service
 
-# Start Emby server if not running
-if ! emby_running; then
-    service emby-server start
-fi
+# Start Emby server
+service emby-server start
 
 # Delay until emby has finished starting
 until $($CURL http://$EMBY_SERVER:$EMBY_PORT); do
@@ -32,9 +28,7 @@ else
     rm -f /etc/embypass
 fi
 
-if emby_running; then
-    service emby-server stop
-fi
+service emby-server stop
 
 # https on Emby requires PKCS #12 certificate
 mkdir /etc/ssl/emby
@@ -42,10 +36,11 @@ SSL_PASSWORD=$(mcookie)
 CERT_PATH=/etc/ssl/emby/cert.pfx
 openssl pkcs12 -export -out $CERT_PATH -inkey /etc/ssl/private/cert.key -in /etc/ssl/private/cert.pem -password pass:$SSL_PASSWORD
 chmod +r $CERT_PATH
-EMBY_CONFIG=/var/lib/emby-server/config/system.xml
+EMBY_CONFIG=/var/lib/emby/config/system.xml
 sed -i '/<CertificatePath*/d' $EMBY_CONFIG
 sed -i '/<CertificatePassword*/d' $EMBY_CONFIG
 sed -i "/<\/ServerConfiguration/i \ <CertificatePath>$CERT_PATH</CertificatePath>\n <CertificatePassword>$SSL_PASSWORD</CertificatePassword>" $EMBY_CONFIG
 
-# Start Emby up for first boot
-service emby-server restart
+# Restart Emby
+service emby-server stop
+service emby-server start

@@ -1,17 +1,8 @@
 #!/bin/sh -ex
 
-apt update
-apt install emby-server -y
+SRC=/usr/local/src/emby-server.deb
 
-service emby-server start &  EMBY_PID=$!
-
-# Delay until emby has finished starting
-EMBY_SERVER=127.0.0.1
-EMBY_PORT=8096
-CURL="curl --output /dev/null --silent --head --fail"
-until $($CURL http://$EMBY_SERVER:$EMBY_PORT); do
-    sleep 5
-done
+dpkg -i  $SRC
 
 # Rename the file server for WebDAVCGI
 CONF=/var/www/webdavcgi/webdav.conf
@@ -24,15 +15,14 @@ sed -i "s|FileServer|MediaServer|" $CONF
 
 # Change default group to users
 usermod -g users emby
-chgrp -R users /var/lib/emby-server
-chgrp -R users /var/lib/emby-server/*
 
 # Change group assigned to emby
 CONF=/etc/emby-server.conf
-echo "EMBY_GROUP=\"users\"" >> $CONF
 
-# Make restart script installed by emby executable
-#chmod +x /var/lib/emby-server/restart.sh
+echo "
+EMBY_GROUP=\"users\"
+" >> $CONF
+cat $CONF
 
 #Setup default media folders
 mkdir -p /srv/storage/Music
@@ -55,21 +45,13 @@ chmod g+w /srv/storage/Photos
 CONF=/srv/storage/README.txt
 sed -i "s|File Server|Media Server|" $CONF
 
-# Stop the service
-service emby-server stop
-
-sleep 30
-
 adduser emby sudo
 
-# Remove Emby data directory (Necessary for emby to run properly in final appliance, Regenerated when emby first starts)
-rm -r /var/lib/emby-server
-
 # add TurnKey credit to log in page
-mkdir -p /var/lib/emby-server/config/
-mv /usr/local/src/emby-branding.xml  /var/lib/emby-server/config/branding.xml
+mkdir -p /var/lib/emby/config/
+mv /usr/local/src/emby-branding.xml  /var/lib/emby/config/branding.xml
 
 # Apache config for WebDavCGI
-a2dissite 000-default.conf 
-a2ensite webdavcgi.conf 
+a2dissite 000-default.conf
+a2ensite webdavcgi.conf
 a2ensite tkl-webcp.conf

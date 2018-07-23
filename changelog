@@ -1,9 +1,6 @@
 turnkey-mediaserver-15.0 (1) turnkey; urgency=low
 
-  * Update Emby from 3rd party upstream Debian repo.
-
-  * Secure 3rd party apt repo gpg key in /usr/share/keyrings (part of #1033).
-    [ Stefan Davis ]
+  * Install latest Emby from upstream .deb file
 
   * Update WebDAV CGI from upstream.
 
