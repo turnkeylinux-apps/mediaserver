@@ -15,7 +15,8 @@ and on top of that:
 
 - Media server (`Emby`_) configurations:
    
-   - Web UI listening on ports 8096 (http) and 8920 (https).
+   - Web UI listening on ports 8096 (http) and 12322 (https).
+   - Preconfigured reverse proxy to connect to your Emby server using HTTPS.
    - Preconfigured path substitution for Samba access
    - Preconfigured Music, Movies, TVShows, and Photos directories
 
@@ -50,6 +51,18 @@ and on top of that:
 
     smbclient //1.0.0.61/storage -Uroot
     mount -t cifs //1.0.0.61/storage /mnt -o username=root,password=PASSWORD
+
+- You can generate your own PKCS #12 certificate (required for direct connection to Emby via HTTPS)::
+
+    mkdir /etc/ssl/emby
+    SSL_PASSWORD=YOUR_PASSWORD
+    CERT_PATH=/etc/ssl/emby/cert.pfx
+    openssl pkcs12 -export -out $CERT_PATH -inkey /etc/ssl/private/cert.key -in /etc/ssl/private/cert.pem -password pass:$SSL_PASSWORD
+    chmod +r $CERT_PATH
+    EMBY_CONFIG=/var/lib/emby/config/system.xml
+    sed -i '/<CertificatePath*/d' $EMBY_CONFIG
+    sed -i '/<CertificatePassword*/d' $EMBY_CONFIG
+    sed -i "/<\/ServerConfiguration/i \ <CertificatePath>$CERT_PATH</CertificatePath>\n <CertificatePassword>$SSL_PASSWORD</CertificatePassword>" $EMBY_CONFIG
 
 Credentials *(passwords set at first boot)*
 -------------------------------------------
