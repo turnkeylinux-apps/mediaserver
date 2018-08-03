@@ -124,8 +124,8 @@ def main():
 
     # Change default user password
     url = "{server}/emby/Users/%s/Password" % emby.getUserId()
-    data = "currentPassword=%s&newPassword=%s" % (emby.hashPassword(oldpw), emby.hashPassword(password))
-    emby.doUtils.downloadUrl(url, postBody=data, type="POST", json=False, authenticate=True)
+    data = json.loads("{\"CurrentPassword\":\"%s\",\"NewPw\":\"%s\"}" % (emby.hashPassword(oldpw), password))
+    emby.doUtils.downloadUrl(url, postBody=data, type="POST", json=True, authenticate=True)
 
     # Remove device
     url = "{server}/emby/Devices?Id=%s" % emby.doUtils.deviceId

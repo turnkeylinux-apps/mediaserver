@@ -7,15 +7,11 @@ EMBY_SERVER=127.0.0.1
 EMBY_PORT=8096
 CURL="curl --output /dev/null --silent --head --fail"
 
-emby_running () {
-    local pidfile='/run/emby-server.pid'
-    [ -e "$pidfile" ] && kill -0 $( cat $pidfile )
-}
+chown -R emby:users /var/lib/emby
+systemctl enable emby-server@emby.service
 
-# Start Emby server if not running
-if ! emby_running; then
-    service emby-server start
-fi
+# Start Emby server
+service emby-server start
 
 # Delay until emby has finished starting
 until $($CURL http://$EMBY_SERVER:$EMBY_PORT); do
@@ -32,9 +28,13 @@ else
     rm -f /etc/embypass
 fi
 
-if emby_running; then
-    service emby-server stop
-fi
+service emby-server stop
 
-# Start Emby up for first boot
-service emby-server restart
+# https on Emby requires PKCS #12 certificate
+EMBY_CONFIG=/var/lib/emby/config/system.xml
+sed -i '/<IsBehindProxy*/d' $EMBY_CONFIG
+sed -i "/<\/ServerConfiguration/i \ <IsBehindProxy>true</IsBehindProxy>" $EMBY_CONFIG
+
+# Restart Emby
+service emby-server stop
+service emby-server start

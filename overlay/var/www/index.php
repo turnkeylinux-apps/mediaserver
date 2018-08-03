@@ -61,7 +61,7 @@
                     </div>
                     <div style="float:left;width:20%">
                         <a href="https://<?php print
-                        $_SERVER{'HTTP_HOST'}; ?>:8920"><img
+                        $_SERVER{'HTTP_HOST'}; ?>:12322"><img
                         src="images/emby.png"/>Emby<br />(HTTPS)</a>
                     </div>
                     <div style="float:left;width:10%"></div>
