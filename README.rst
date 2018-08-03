@@ -15,8 +15,10 @@ and on top of that:
 
 - Media server (`Emby`_) configurations:
    
-   - Web UI listening on ports 8096 (http) and 12322 (https).
-   - Preconfigured reverse proxy to connect to your Emby server using HTTPS.
+   - Web UI listening on ports 8096 (http) and 8920 (https - uses Emby's own
+     custom SSL/TLS certificate - see more below).
+   - Preconfigured reverse proxy to connect to your Emby server via port 12322
+     using system SSL/TLS certificates.
    - Preconfigured path substitution for Samba access
    - Preconfigured Music, Movies, TVShows, and Photos directories
 

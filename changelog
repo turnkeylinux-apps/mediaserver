@@ -2,7 +2,7 @@ turnkey-mediaserver-15.0 (1) turnkey; urgency=low
 
   * Install latest Emby from upstream .deb file
 
-  * Setting up Emby behind a reverse proxy
+  * Provide Emby https behind a reverse proxy (uses system SSL certs)
 
   * Update WebDAV CGI from upstream.
 
