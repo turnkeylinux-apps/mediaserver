@@ -6,10 +6,14 @@ turnkey-mediaserver-15.0 (1) turnkey; urgency=low
 
   * Update WebDAV CGI from upstream.
 
+  * Workaround Samba root user password issue within container by creating new
+    inithook (closes #1141). See also #1188.
+    [ Jeremy Davis ]
+
   * Note: Please refer to turnkey-core's changelog for changes common to all
     appliances. Here we only describe changes specific to this appliance.
 
- -- Vlad Kuzmenko <vlad.work.here@gmail.com>  Tue, 26 Jun 2018 00:20:42 +0200
+ -- Vlad Kuzmenko <vlad.work.here@gmail.com>  Tue, 28 Aug 2018 00:20:42 +0200
 
 turnkey-mediaserver-14.2 (1) turnkey; urgency=low
 
