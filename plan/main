@@ -9,6 +9,7 @@ libapache2-mod-php
 php-ssh2
 sudo
 
+apt-transport-https
 python-requests  /* Emby dependency*/
 mediainfo        /* Emby dependency*/
 

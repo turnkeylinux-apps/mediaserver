@@ -1,8 +1,9 @@
 #!/bin/sh -ex
 
-SRC=/usr/local/src/emby-server.deb
 
-dpkg -i  $SRC
+apt-get -y update
+apt-get -y dist-upgrade
+apt-get -y install jellyfin --allow-unauthenticated
 
 # Rename the file server for WebDAVCGI
 CONF=/var/www/webdavcgi/webdav.conf
@@ -13,43 +14,7 @@ CONF=/etc/samba/smb.conf
 sed -i "s|FILESERVER|MEDIASERVER|" $CONF
 sed -i "s|FileServer|MediaServer|" $CONF
 
-# Change default group to users
-usermod -g users emby
-
-# Change group assigned to emby
-CONF=/etc/emby-server.conf
-
-echo "
-EMBY_GROUP=\"users\"
-" >> $CONF
-cat $CONF
-
-#Setup default media folders
-mkdir -p /srv/storage/Music
-chown emby:users /srv/storage/Music
-chmod g+w /srv/storage/Music
-
-mkdir -p /srv/storage/Movies
-chown emby:users /srv/storage/Movies
-chmod g+w /srv/storage/Movies
-
-mkdir -p /srv/storage/TVShows
-chown emby:users /srv/storage/TVShows
-chmod g+w /srv/storage/TVShows
-
-mkdir -p /srv/storage/Photos
-chown emby:users /srv/storage/Photos
-chmod g+w /srv/storage/Photos
-
 # Replace text in README
-CONF=/srv/storage/README.txt
-sed -i "s|File Server|Media Server|" $CONF
-
-adduser emby sudo
-
-# add TurnKey credit to log in page
-mkdir -p /var/lib/emby/config/
-mv /usr/local/src/emby-branding.xml  /var/lib/emby/config/branding.xml
 
 # Apache config for WebDavCGI
 a2dissite 000-default.conf
