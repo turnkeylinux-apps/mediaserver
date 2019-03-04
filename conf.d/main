@@ -1,9 +1,8 @@
 #!/bin/sh -ex
 
-
 apt-get -y update
 apt-get -y dist-upgrade
-apt-get -y install jellyfin --allow-unauthenticated
+apt-get -y install jellyfin
 
 # Rename the file server for WebDAVCGI
 CONF=/var/www/webdavcgi/webdav.conf
