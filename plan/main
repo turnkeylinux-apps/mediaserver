@@ -10,6 +10,6 @@ php-ssh2
 sudo
 
 apt-transport-https
-python-requests  /* Emby dependency*/
-mediainfo        /* Emby dependency*/
+python-requests  /* Jellyfin dependency*/
+mediainfo        /* Jellyfin dependency*/
 
