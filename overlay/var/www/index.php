@@ -57,12 +57,12 @@
                     <div style="float:left;width:20%">
                         <a href="http://<?php print
                         $_SERVER{'HTTP_HOST'}; ?>:8096"><img
-                        src="images/emby.png"/>Emby<br/>(HTTP)</a>
+                        src="images/jellyfin.png"/>Jellyfin<br/>(HTTP)</a>
                     </div>
                     <div style="float:left;width:20%">
                         <a href="https://<?php print
                         $_SERVER{'HTTP_HOST'}; ?>:12322"><img
-                        src="images/emby.png"/>Emby<br />(HTTPS)</a>
+                        src="images/jellyfin.png"/>Jellyfin<br />(HTTPS)</a>
                     </div>
                     <div style="float:left;width:10%"></div>
                     <div style="float:left;width:10%"></div>
@@ -70,8 +70,8 @@
                         <h2>Resources and references</h2>
                         <ul>
                             <li>
-                               <a href="https://github.com/MediaBrowser/Wiki/wiki">
-                               Emby documentation</a>
+                               <a href="https://jellyfin.readthedocs.io/en/latest/user-docs/getting-help/">
+                               Gettting help with Jellyfin</a>
                             </li>
                             <li>
                                <a href="http://samba.org/samba/docs">
