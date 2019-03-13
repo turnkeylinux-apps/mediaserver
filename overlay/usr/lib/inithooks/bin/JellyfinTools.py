@@ -287,7 +287,7 @@ class DownloadUtils():
                         # Parental control - access restricted
                         return False
                     elif r.headers['X-Application-Error-Code'] == "UnauthorizedAccessException":
-                        # User tried to do something his emby account doesn't allow - admin restricted in some way
+                        # User tried to do something his jellyfin account doesn't allow - admin restricted in some way
                         pass
 
                 else:
@@ -348,7 +348,7 @@ class UserClient():
 
     def getUsername(self):
 
-        return "emby"
+        return "jellyfin"
 
     def getUserId(self):
 
