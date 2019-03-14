@@ -1,3 +1,12 @@
+turnkey-mediaserver-15.1 (1) turnkey; urgency=low
+
+  * Move from Emby to Jellyfin (Emby is no longer fully open source; Jellyfin
+    is a fully open source fork of Emby).
+
+  * Install Jellyfin 10.2.2.
+
+ -- Jeremy Davis <jeremy@turnkeylinux.org>  Wed, 06 Mar 2019 16:02:12 +1100
+
 turnkey-mediaserver-15.0 (1) turnkey; urgency=low
 
   * Install latest Emby from upstream .deb file
