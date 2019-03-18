@@ -11,7 +11,7 @@ chown -R jellyfin:users /var/lib/jellyfin
 systemctl enable jellyfin
 
 # Start Emby server
-service jellyfin-server start
+service jellyfin start
 
 # Delay until jellyfin has finished starting
 until $($CURL http://$JELLYFIN_SERVER:$JELLYFIN_PORT); do
@@ -28,13 +28,13 @@ else
     rm -f /etc/jellyfinpass
 fi
 
-service jellyfin-server stop
+service jellyfin stop
 
 # https on Emby requires PKCS #12 certificate
-JELLYFIN_CONFIG=/var/lib/jellyfin/config/system.xml
+JELLYFIN_CONFIG=/etc/jellyfin/system.xml
 sed -i '/<IsBehindProxy*/d' $JELLYFIN_CONFIG
 sed -i "/<\/ServerConfiguration/i \ <IsBehindProxy>true</IsBehindProxy>" $JELLYFIN_CONFIG
 
 # Restart Emby
-service jellyfin-server stop
-service jellyfin-server start
+service jellyfin stop
+service jellyfin start
