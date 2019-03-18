@@ -124,12 +124,12 @@ def main():
     f.close()
 
     # Change default user password
-    url = "{server}/jellyfin/Users/%s/Password" % jellyfin.getUserId()
+    url = "{server}/emby/Users/%s/Password" % jellyfin.getUserId()
     data = json.loads("{\"CurrentPassword\":\"%s\",\"NewPw\":\"%s\"}" % (jellyfin.hashPassword(oldpw), password))
     jellyfin.doUtils.downloadUrl(url, postBody=data, type="POST", json=True, authenticate=True)
 
     # Remove device
-    url = "{server}/jellyfin/Devices?Id=%s" % jellyfin.doUtils.deviceId
+    url = "{server}/emby/Devices?Id=%s" % jellyfin.doUtils.deviceId
     jellyfin.doUtils.downloadUrl(url, type="DELETE", json=False, authenticate=True)
 
 if __name__ == "__main__":
