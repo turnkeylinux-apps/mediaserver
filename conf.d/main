@@ -13,7 +13,15 @@ CONF=/etc/samba/smb.conf
 sed -i "s|FILESERVER|MEDIASERVER|" $CONF
 sed -i "s|FileServer|MediaServer|" $CONF
 
-# Replace text in README
+# Change default group to users
+usermod -g users jellyfin
+
+# Setup default media directories
+for fn in Music Movies TVShows Photos; do
+    mkdir -p /srv/storage/$fn
+    chown jellyfin:users /srv/storage/$fn
+    chmod g+w /srv/storage/$fn
+done
 
 # Apache config for WebDavCGI
 a2dissite 000-default.conf
