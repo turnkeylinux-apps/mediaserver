@@ -1,8 +1,7 @@
 #!/bin/sh -ex
 
-SRC=/usr/local/src/emby-server.deb
-
-dpkg -i  $SRC
+apt-get update
+apt-get -y install jellyfin
 
 # Rename the file server for WebDAVCGI
 CONF=/var/www/webdavcgi/webdav.conf
@@ -14,42 +13,17 @@ sed -i "s|FILESERVER|MEDIASERVER|" $CONF
 sed -i "s|FileServer|MediaServer|" $CONF
 
 # Change default group to users
-usermod -g users emby
+usermod -g users jellyfin
 
-# Change group assigned to emby
-CONF=/etc/emby-server.conf
+# Setup default media directories
+for fn in Music Movies TVShows Photos; do
+    mkdir -p /srv/storage/$fn
+    chown jellyfin:users /srv/storage/$fn
+    chmod g+w /srv/storage/$fn
+done
 
-echo "
-EMBY_GROUP=\"users\"
-" >> $CONF
-cat $CONF
-
-#Setup default media folders
-mkdir -p /srv/storage/Music
-chown emby:users /srv/storage/Music
-chmod g+w /srv/storage/Music
-
-mkdir -p /srv/storage/Movies
-chown emby:users /srv/storage/Movies
-chmod g+w /srv/storage/Movies
-
-mkdir -p /srv/storage/TVShows
-chown emby:users /srv/storage/TVShows
-chmod g+w /srv/storage/TVShows
-
-mkdir -p /srv/storage/Photos
-chown emby:users /srv/storage/Photos
-chmod g+w /srv/storage/Photos
-
-# Replace text in README
-CONF=/srv/storage/README.txt
-sed -i "s|File Server|Media Server|" $CONF
-
-adduser emby sudo
-
-# add TurnKey credit to log in page
-mkdir -p /var/lib/emby/config/
-mv /usr/local/src/emby-branding.xml  /var/lib/emby/config/branding.xml
+# TurnKey credit on Login page
+mv /usr/local/src/jellyfin-branding.xml /etc/jellyfin/branding.xml
 
 # Apache config for WebDavCGI
 a2dissite 000-default.conf
@@ -58,7 +32,7 @@ a2ensite tkl-webcp.conf
 
 # Apache config for reverse proxy
 echo 'Listen 12322' >> /etc/apache2/ports.conf
-a2ensite emby-proxy.conf
+a2ensite jellyfin-proxy.conf
 a2enmod headers
 a2enmod proxy_http
 a2enmod proxy_wstunnel

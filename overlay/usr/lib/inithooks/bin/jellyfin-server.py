@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # Copyright (c) 2015 Jonathan Struebel <jonathan.struebel@gmail.com>
-"""Configure Emby Media Server
+# Modified for Jellyfin 2019 TurnKey GNU/Linux <jeremy@turnkeylinux.org>
+"""Configure Jellyfin Media Server
 
 Arguments:
     none
@@ -14,8 +15,8 @@ import getopt
 import subprocess
 from subprocess import PIPE
 import signal
-import EmbyTools
-from EmbyTools import UserClient
+import JellyfinTools
+from JellyfinTools import UserClient
 import json
 
 def fatal(s):
@@ -36,7 +37,7 @@ def main():
     except getopt.GetoptError, e:
         usage(e)
 
-    emby = UserClient()
+    jellyfin = UserClient()
 
     password = ""
     for opt, val in opts:
@@ -49,10 +50,10 @@ def main():
         from dialog_wrapper import Dialog
         d = Dialog('TurnKey GNU/Linux - First boot configuration')
         password = d.get_password(
-            "Emby User Password",
-            "Please enter new password for the Emby Server %s account." % emby.getUsername())
+            "Jellyfin User Password",
+            "Please enter new password for the Jellyfin Server %s account." % jellyfin.getUsername())
 
-    pwfile = "/etc/embypass"
+    pwfile = "/etc/jellyfinpass"
     oldpw = None
     try:
         f = open(pwfile,'r')
@@ -62,13 +63,13 @@ def main():
         oldpw = f.readline().rstrip('\r\n')
         f.close()
 
-    server = emby.getServer()
+    server = jellyfin.getServer()
     url = "%s/web/login.html" % server
-    status = emby.doUtils.downloadUrl(url, json=False, authenticate=False)
+    status = jellyfin.doUtils.downloadUrl(url, json=False, authenticate=False)
 
     if (status == 302 or status == 'Redirect'):
-        # Perform initial Emby setup
-        settings = "/etc/embyinitsetup"
+        # Perform initial Jellyfin setup
+        settings = "/etc/jellyfininitsetup"
         try:
             f = open(settings,'r')
         except:
@@ -83,20 +84,20 @@ def main():
             if (fields[2] == "json"):
                 jsonEnc = True
             fields[1] = fields[1].replace("{server}", server, 1)
-            fields[1] = fields[1].replace("{user}", emby.getUsername(), 1)
+            fields[1] = fields[1].replace("{user}", jellyfin.getUsername(), 1)
             if len(fields) > 3:
-                fields[3] = fields[3].replace("{user}", emby.getUsername(), 1)
-                emby.doUtils.downloadUrl(fields[1], postBody=fields[3], type=fields[0], json=jsonEnc, authenticate=False)
+                fields[3] = fields[3].replace("{user}", jellyfin.getUsername(), 1)
+                jellyfin.doUtils.downloadUrl(fields[1], postBody=fields[3], type=fields[0], json=jsonEnc, authenticate=False)
             else:
-                emby.doUtils.downloadUrl(fields[1], type=fields[0], json=jsonEnc, authenticate=False)
+                jellyfin.doUtils.downloadUrl(fields[1], type=fields[0], json=jsonEnc, authenticate=False)
 
         f.close()
 
-    emby.currPass = oldpw
-    emby.authenticate()
+    jellyfin.currPass = oldpw
+    jellyfin.authenticate()
 
-    # Perform remaining Emby setup
-    settings = "/etc/embysetup"
+    # Perform remaining Jellyfin setup
+    settings = "/etc/jellyfinsetup"
     try:
         f = open(settings,'r')
     except:
@@ -111,25 +112,25 @@ def main():
         if (fields[2] == "json"):
             jsonEnc = True
         fields[1] = fields[1].replace("{server}", server, 1)
-        fields[1] = fields[1].replace("{user}", emby.getUsername(), 1)
+        fields[1] = fields[1].replace("{user}", jellyfin.getUsername(), 1)
         if len(fields) > 3:
-            fields[3] = fields[3].replace("{user}", emby.getUsername(), 1)
+            fields[3] = fields[3].replace("{user}", jellyfin.getUsername(), 1)
             if jsonEnc:
                 fields[3] = json.loads(fields[3])
-            emby.doUtils.downloadUrl(fields[1], postBody=fields[3], type=fields[0], json=jsonEnc, authenticate=True)
+            jellyfin.doUtils.downloadUrl(fields[1], postBody=fields[3], type=fields[0], json=jsonEnc, authenticate=True)
         else:
-            emby.doUtils.downloadUrl(fields[1], type=fields[0], json=jsonEnc, authenticate=True)
+            jellyfin.doUtils.downloadUrl(fields[1], type=fields[0], json=jsonEnc, authenticate=True)
 
     f.close()
 
     # Change default user password
-    url = "{server}/emby/Users/%s/Password" % emby.getUserId()
-    data = json.loads("{\"CurrentPassword\":\"%s\",\"NewPw\":\"%s\"}" % (emby.hashPassword(oldpw), password))
-    emby.doUtils.downloadUrl(url, postBody=data, type="POST", json=True, authenticate=True)
+    url = "{server}/emby/Users/%s/Password" % jellyfin.getUserId()
+    data = json.loads("{\"CurrentPassword\":\"%s\",\"NewPw\":\"%s\"}" % (jellyfin.hashPassword(oldpw), password))
+    jellyfin.doUtils.downloadUrl(url, postBody=data, type="POST", json=True, authenticate=True)
 
     # Remove device
-    url = "{server}/emby/Devices?Id=%s" % emby.doUtils.deviceId
-    emby.doUtils.downloadUrl(url, type="DELETE", json=False, authenticate=True)
+    url = "{server}/emby/Devices?Id=%s" % jellyfin.doUtils.deviceId
+    jellyfin.doUtils.downloadUrl(url, type="DELETE", json=False, authenticate=True)
 
 if __name__ == "__main__":
     main()
