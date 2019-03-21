@@ -1,0 +1,7 @@
+Package: *
+Pin: origin "repo.jellyfin.org"
+Pin-Priority: 10
+
+Package: jellyfin
+Pin: origin "repo.jellyfin.org"
+Pin-Priority: 500
