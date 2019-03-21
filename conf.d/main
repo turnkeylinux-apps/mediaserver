@@ -1,7 +1,6 @@
 #!/bin/sh -ex
 
-apt-get -y update
-apt-get -y dist-upgrade
+apt-get update
 apt-get -y install jellyfin
 
 # Rename the file server for WebDAVCGI
