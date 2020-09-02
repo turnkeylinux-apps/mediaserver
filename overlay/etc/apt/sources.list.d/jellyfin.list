@@ -1,1 +1,1 @@
-deb [signed-by=/usr/share/keyrings/jellyfin.gpg] https://repo.jellyfin.org/debian stretch main
+deb [signed-by=/usr/share/keyrings/jellyfin.gpg] https://repo.jellyfin.org/debian buster main

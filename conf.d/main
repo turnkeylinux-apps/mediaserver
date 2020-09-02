@@ -1,7 +1,7 @@
 #!/bin/sh -ex
 
 apt-get update
-apt-get -y install jellyfin
+apt-get -y install jellyfin jellyfin-ffmpeg
 
 # Rename the file server for WebDAVCGI
 CONF=/var/www/webdavcgi/webdav.conf
@@ -29,6 +29,40 @@ mv /usr/local/src/jellyfin-branding.xml /etc/jellyfin/branding.xml
 a2dissite 000-default.conf
 a2ensite webdavcgi.conf
 a2ensite tkl-webcp.conf
+
+# dirty hack to allow jellyfin to run in a chroot
+mkdir -p /sys/class/net/eth0
+mkdir -p /sys/class/net/lo
+echo 1500 > /sys/class/net/eth0/mtu
+echo 65536 > /sys/class/net/lo/mtu
+
+. /etc/default/jellyfin
+
+su -s /bin/bash jellyfin -c "/usr/bin/jellyfin ${JELLYFIN_WEB_OPT} ${JELLYFIN_RESTART_OPT} ${JELLYFIN_FFMPEG_OPT} ${JELLYFIN_SERVICE_OPT} ${JELLYFIN_NOWEBAPP_OPT} -d ${JELLYFIN_DATA_DIR}" > /tmp/jellyfin_log&
+
+until grep 'Startup complete' /tmp/jellyfin_log
+do
+    sleep 2
+done
+pid=$(pgrep jellyfin)
+
+sleep 2
+
+curl 'http://localhost:8096/Startup/Configuration' --data-raw 'UICulture=en-US&MetadataCountryCode=US&PreferredMetadataLanguage=en'
+curl 'http://localhost:8096/Startup/User'
+curl 'http://localhost:8096/Startup/User' --data-raw 'Name=jellyfin&Password=test'
+curl 'http://localhost:8096/Startup/Configuration' --data-raw 'UICulture=en-US&MetadataCountryCode=US&PreferredMetadataLanguage=en'
+curl 'http://localhost:8096/Startup/RemoteAccess' --data-raw 'EnableRemoteAccess=true&EnableAutomaticPortMapping=false'
+curl 'http://localhost:8096/Startup/Complete' --data-raw ''
+
+
+kill $pid
+while kill -0 $pid; do
+    sleep 1
+done
+chown -R jellyfin:adm /var/lib/jellyfin
+rm -r /sys/*
+rm /tmp/jellyfin_log
 
 # Apache config for reverse proxy
 echo 'Listen 12322' >> /etc/apache2/ports.conf
