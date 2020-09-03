@@ -38,9 +38,16 @@ echo 65536 > /sys/class/net/lo/mtu
 
 . /etc/default/jellyfin
 
-su -s /bin/bash jellyfin -c "/usr/bin/jellyfin ${JELLYFIN_WEB_OPT} ${JELLYFIN_RESTART_OPT} ${JELLYFIN_FFMPEG_OPT} ${JELLYFIN_SERVICE_OPT} ${JELLYFIN_NOWEBAPP_OPT} -d ${JELLYFIN_DATA_DIR}" > /tmp/jellyfin_log&
+export JELLYFIN_DATA_DIR JELLYFIN_CONFIG_DIR JELLYFIN_LOG_DIR JELLYFIN_CACHE_DIR
 
-until grep 'Startup complete' /tmp/jellyfin_log
+JELLYFIN_LOG_FILE=/var/log/jellyfin/jellyfin_log
+
+su -s /bin/bash jellyfin -c "/usr/bin/jellyfin \
+    ${JELLYFIN_WEB_OPT} ${JELLYFIN_RESTART_OPT} \
+    ${JELLYFIN_FFMPEG_OPT} ${JELLYFIN_SERVICE_OPT} \
+    ${JELLYFIN_NOWEBAPP_OPT}" > $JELLYFIN_LOG_FILE&
+
+until grep 'Startup complete' $JELLYFIN_LOG_FILE
 do
     sleep 2
 done
@@ -54,7 +61,10 @@ curl 'http://localhost:8096/Startup/User' --data-raw 'Name=jellyfin&Password=tes
 curl 'http://localhost:8096/Startup/Configuration' --data-raw 'UICulture=en-US&MetadataCountryCode=US&PreferredMetadataLanguage=en'
 curl 'http://localhost:8096/Startup/RemoteAccess' --data-raw 'EnableRemoteAccess=true&EnableAutomaticPortMapping=false'
 curl 'http://localhost:8096/Startup/Complete' --data-raw ''
-
+until grep 'Scan Media Library Completed' $JELLYFIN_LOG_FILE
+do
+    sleep 2
+done
 
 kill $pid
 while kill -0 $pid; do
@@ -62,7 +72,6 @@ while kill -0 $pid; do
 done
 chown -R jellyfin:adm /var/lib/jellyfin
 rm -r /sys/*
-rm /tmp/jellyfin_log
 
 # Apache config for reverse proxy
 echo 'Listen 12322' >> /etc/apache2/ports.conf
