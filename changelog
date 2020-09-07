@@ -1,3 +1,12 @@
+turnkey-mediaserver-16.0 (1) turnkey; urgency=low
+
+  * Update Jellyfin to latest upstream stable (from jellyfin repos) (v10.6.4)
+
+  * Note: Please refer to turnkey-core's changelog for changes common to all
+    appliances. Here we only describe changes specific to this appliance.
+
+ -- Stefan Davis <stefan@turnkeylinux.org>  Mon, 07 Sep 2020 14:51:48 +1000
+
 turnkey-mediaserver-15.1 (1) turnkey; urgency=low
 
   * Move from Emby to Jellyfin (Emby is no longer fully open source; Jellyfin
