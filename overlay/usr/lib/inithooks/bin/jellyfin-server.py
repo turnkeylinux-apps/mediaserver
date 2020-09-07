@@ -36,8 +36,6 @@ def main():
     except getopt.GetoptError as e:
         usage(e)
 
-    jellyfin = UserClient()
-
     password = ""
     for opt, val in opts:
         if opt in ('-h', '--help'):
@@ -50,7 +48,7 @@ def main():
         d = Dialog('TurnKey GNU/Linux - First boot configuration')
         password = d.get_password(
             "Jellyfin User Password",
-            "Please enter new password for the Jellyfin Server %s account." % jellyfin.getUsername())
+            "Please enter new password for the Jellyfin Server jellyfin account.")
 
     # taken from https://github.com/jellyfin/jellyfin/blob/master/MediaBrowser.Common/Cryptography/Constants.cs
     salt = secrets.token_bytes(64)
