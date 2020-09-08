@@ -1,7 +1,10 @@
 #!/bin/sh -ex
 
+ADMIN_USER="jellyfin"
+ADMIN_PASS="$(mcookie)"
+
 apt-get update
-apt-get -y install jellyfin
+apt-get -y install jellyfin jellyfin-ffmpeg
 
 # Rename the file server for WebDAVCGI
 CONF=/var/www/webdavcgi/webdav.conf
@@ -29,6 +32,53 @@ mv /usr/local/src/jellyfin-branding.xml /etc/jellyfin/branding.xml
 a2dissite 000-default.conf
 a2ensite webdavcgi.conf
 a2ensite tkl-webcp.conf
+
+# dirty hack to allow jellyfin to run in a chroot
+mkdir -p /sys/class/net/eth0
+mkdir -p /sys/class/net/lo
+echo 1500 > /sys/class/net/eth0/mtu
+echo 65536 > /sys/class/net/lo/mtu
+
+. /etc/default/jellyfin
+
+export JELLYFIN_DATA_DIR JELLYFIN_CONFIG_DIR JELLYFIN_LOG_DIR JELLYFIN_CACHE_DIR
+
+JELLYFIN_LOG_FILE=/var/log/jellyfin/jellyfin_log
+
+su -s /bin/bash jellyfin -c "/usr/bin/jellyfin \
+    ${JELLYFIN_WEB_OPT} ${JELLYFIN_RESTART_OPT} \
+    ${JELLYFIN_FFMPEG_OPT} ${JELLYFIN_SERVICE_OPT} \
+    ${JELLYFIN_NOWEBAPP_OPT}" > $JELLYFIN_LOG_FILE&
+
+until grep 'Startup complete' $JELLYFIN_LOG_FILE
+do
+    sleep 2
+done
+pid=$(pgrep jellyfin)
+
+sleep 2
+
+curl 'http://localhost:8096/Startup/Configuration' --data-raw 'UICulture=en-US&MetadataCountryCode=US&PreferredMetadataLanguage=en'
+curl 'http://localhost:8096/Startup/User'
+curl 'http://localhost:8096/Startup/User' --data-raw "Name=$ADMIN_USER&Password=$ADMIN_PASS"
+curl 'http://localhost:8096/Library/VirtualFolders?collectionType=music&refreshLibrary=false&name=Music' --data-raw '{"LibraryOptions":{"EnableArchiveMediaFiles":false,"EnablePhotos":true,"EnableRealtimeMonitor":true,"ExtractChapterImagesDuringLibraryScan":false,"EnableChapterImageExtraction":false,"DownloadImagesInAdvance":false,"EnableInternetProviders":true,"ImportMissingEpisodes":false,"SaveLocalMetadata":false,"EnableAutomaticSeriesGrouping":false,"PreferredMetadataLanguage":"","MetadataCountryCode":"","SeasonZeroDisplayName":"Specials","AutomaticRefreshIntervalDays":0,"EnableEmbeddedTitles":false,"EnableEmbeddedEpisodeInfos":false,"SkipSubtitlesIfEmbeddedSubtitlesPresent":false,"SkipSubtitlesIfAudioTrackMatches":false,"SaveSubtitlesWithMedia":true,"RequirePerfectSubtitleMatch":true,"MetadataSavers":[],"TypeOptions":[{"Type":"MusicArtist","MetadataFetchers":["MusicBrainz"],"MetadataFetcherOrder":["MusicBrainz","TheAudioDB"]},{"Type":"MusicAlbum","MetadataFetchers":["MusicBrainz"],"MetadataFetcherOrder":["MusicBrainz","TheAudioDB"]},{"Type":"MusicVideo","MetadataFetchers":["TheMovieDb"],"MetadataFetcherOrder":["TheMovieDb"],"ImageFetchers":["TheMovieDb","Screen Grabber"],"ImageFetcherOrder":["TheMovieDb","Screen Grabber"]},{"Type":"Audio","ImageFetchers":["Image Extractor"],"ImageFetcherOrder":["Image Extractor"]}],"LocalMetadataReaderOrder":["Nfo"],"SubtitleDownloadLanguages":[],"DisabledSubtitleFetchers":[],"SubtitleFetcherOrder":[],"PathInfos":[{"Path":"/srv/storage/Music"}]}}'
+curl 'http://localhost:8096/Library/VirtualFolders?collectionType=movies&refreshLibrary=false&name=Movies' --data-raw '{"LibraryOptions":{"EnableArchiveMediaFiles":false,"EnablePhotos":true,"EnableRealtimeMonitor":true,"ExtractChapterImagesDuringLibraryScan":false,"EnableChapterImageExtraction":false,"DownloadImagesInAdvance":false,"EnableInternetProviders":true,"ImportMissingEpisodes":false,"SaveLocalMetadata":false,"EnableAutomaticSeriesGrouping":false,"PreferredMetadataLanguage":"","MetadataCountryCode":"","SeasonZeroDisplayName":"Specials","AutomaticRefreshIntervalDays":0,"EnableEmbeddedTitles":false,"EnableEmbeddedEpisodeInfos":false,"SkipSubtitlesIfEmbeddedSubtitlesPresent":false,"SkipSubtitlesIfAudioTrackMatches":false,"SaveSubtitlesWithMedia":true,"RequirePerfectSubtitleMatch":true,"MetadataSavers":[],"TypeOptions":[{"Type":"Movie","MetadataFetchers":["TheMovieDb","The Open Movie Database"],"MetadataFetcherOrder":["TheMovieDb","The Open Movie Database"],"ImageFetchers":["TheMovieDb","The Open Movie Database","Screen Grabber"],"ImageFetcherOrder":["TheMovieDb","The Open Movie Database","Screen Grabber"]}],"LocalMetadataReaderOrder":["Nfo"],"SubtitleDownloadLanguages":[],"DisabledSubtitleFetchers":[],"SubtitleFetcherOrder":[],"PathInfos":[{"Path":"/srv/storage/Movies"}]}}'
+curl 'http://localhost:8096/Library/VirtualFolders?collectionType=tvshows&refreshLibrary=false&name=TV%20Shows' --data-raw '{"LibraryOptions":{"EnableArchiveMediaFiles":false,"EnablePhotos":true,"EnableRealtimeMonitor":true,"ExtractChapterImagesDuringLibraryScan":false,"EnableChapterImageExtraction":false,"DownloadImagesInAdvance":false,"EnableInternetProviders":true,"ImportMissingEpisodes":false,"SaveLocalMetadata":false,"EnableAutomaticSeriesGrouping":false,"PreferredMetadataLanguage":"","MetadataCountryCode":"","SeasonZeroDisplayName":"Specials","AutomaticRefreshIntervalDays":0,"EnableEmbeddedTitles":false,"EnableEmbeddedEpisodeInfos":false,"SkipSubtitlesIfEmbeddedSubtitlesPresent":false,"SkipSubtitlesIfAudioTrackMatches":false,"SaveSubtitlesWithMedia":true,"RequirePerfectSubtitleMatch":true,"MetadataSavers":[],"TypeOptions":[{"Type":"Series","MetadataFetchers":["TheTVDB","The Open Movie Database"],"MetadataFetcherOrder":["TheTVDB","TheMovieDb","The Open Movie Database"],"ImageFetchers":["TheTVDB"],"ImageFetcherOrder":["TheTVDB","TheMovieDb"]},{"Type":"Season","MetadataFetchers":[],"MetadataFetcherOrder":["TheMovieDb"],"ImageFetchers":["TheTVDB","TheMovieDb"],"ImageFetcherOrder":["TheTVDB","TheMovieDb"]},{"Type":"Episode","MetadataFetchers":["TheTVDB"],"MetadataFetcherOrder":["TheTVDB","TheMovieDb","The Open Movie Database"],"ImageFetchers":["TheTVDB","Screen Grabber"],"ImageFetcherOrder":["TheTVDB","TheMovieDb","The Open Movie Database","Screen Grabber"]}],"LocalMetadataReaderOrder":["Nfo"],"SubtitleDownloadLanguages":[],"DisabledSubtitleFetchers":[],"SubtitleFetcherOrder":[],"PathInfos":[{"Path":"/srv/storage/TVShows"}]}}'
+curl 'http://localhost:8096/Library/VirtualFolders?collectionType=homevideos&refreshLibrary=false&name=Photos' --data-raw '{"LibraryOptions":{"EnableArchiveMediaFiles":false,"EnablePhotos":true,"EnableRealtimeMonitor":true,"ExtractChapterImagesDuringLibraryScan":false,"EnableChapterImageExtraction":false,"DownloadImagesInAdvance":false,"EnableInternetProviders":true,"ImportMissingEpisodes":false,"SaveLocalMetadata":false,"EnableAutomaticSeriesGrouping":false,"PreferredMetadataLanguage":"","MetadataCountryCode":"","SeasonZeroDisplayName":"Specials","AutomaticRefreshIntervalDays":0,"EnableEmbeddedTitles":false,"EnableEmbeddedEpisodeInfos":false,"SkipSubtitlesIfEmbeddedSubtitlesPresent":false,"SkipSubtitlesIfAudioTrackMatches":false,"SaveSubtitlesWithMedia":true,"RequirePerfectSubtitleMatch":true,"MetadataSavers":[],"TypeOptions":[{"Type":"Video","ImageFetchers":["Screen Grabber"],"ImageFetcherOrder":["Screen Grabber"]}],"LocalMetadataReaderOrder":["Nfo"],"SubtitleDownloadLanguages":[],"DisabledSubtitleFetchers":[],"SubtitleFetcherOrder":[],"PathInfos":[{"Path":"/srv/storage/Photos"}]}}'
+curl 'http://localhost:8096/Startup/Configuration' --data-raw 'UICulture=en-US&MetadataCountryCode=US&PreferredMetadataLanguage=en'
+curl 'http://localhost:8096/Startup/RemoteAccess' --data-raw 'EnableRemoteAccess=true&EnableAutomaticPortMapping=false'
+curl 'http://localhost:8096/Startup/Complete' --data-raw ''
+until grep 'Scan Media Library Completed' $JELLYFIN_LOG_FILE
+do
+    sleep 2
+done
+
+kill $pid
+while kill -0 $pid; do
+    sleep 1
+done
+chown -R jellyfin:adm /var/lib/jellyfin
+rm -r /sys/*
 
 # Apache config for reverse proxy
 echo 'Listen 12322' >> /etc/apache2/ports.conf

@@ -1,6 +1,0 @@
-# Initial setup File for Emby
-#Format: Type[GET|POST|DELETE]|URL|Ecoding[json|xml]|PostData
-POST|{server}/emby/startup/Configuration|xml|UICulture=en-us&EnableInternetProviders=true&SaveLocalMeta=false&MetadataCountryCode=US&PreferredMetadataLanguage=en
-POST|{server}/emby/startup/User xml|Name={user}
-POST|{server}/emby/System/Configuration/MedatdataPlugins/Autoset|xml
-POST|{server}/emby/Startup/Complete|xml
