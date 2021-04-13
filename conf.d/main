@@ -18,6 +18,9 @@ sed -i "s|FileServer|MediaServer|" $CONF
 # Change default group to users
 usermod -g users jellyfin
 
+# Add jellyfin to video user group (required to support HW encoding)
+usermod -aG video jellyfin
+
 # Setup default media directories
 for fn in Music Movies TVShows Photos; do
     mkdir -p /srv/storage/$fn
