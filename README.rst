@@ -19,8 +19,13 @@ and on top of that:
      own custom SSL/TLS certificate - see more below).
    - Preconfigured reverse proxy to connect to your Jellyfin server via port
      12322 using system SSL/TLS certificates.
-   - Preconfigured path substitution for Samba access
-   - Preconfigured Music, Movies, TVShows, and Photos directories
+   - Preconfigured path substitution for Samba access.
+   - Preconfigured Music, Movies, TVShows, and Photos directories.
+   - Initial preconfiguration to support hardware video acceleration (VA).
+     Additional steps are still required - please see the relevant `Jellyfin
+     VA documentation`_. Installation of the specific drivers for your
+     hardware will also be required (should be available from Debian
+     repositories).
 
 - File server (`Samba`_) configurations:
    
@@ -89,6 +94,7 @@ Credentials *(passwords set at first boot)*
 
 .. _Jellyfin: https://jellyfin.media/
 .. _TurnKey Core: https://www.turnkeylinux.org/core
+.. _Jellyfin VA documentation: https://jellyfin.org/docs/general/administration/hardware-acceleration.html#configuring-vaapi-acceleration-on-debianubuntu-from-deb-packages
 .. _Samba: https://www.samba.org/samba/what_is_samba.html
 .. _issue #1188: https://github.com/turnkeylinux/tracker/issues/1188
 .. _WebDAV CGI: https://github.com/DanRohde/webdavcgi

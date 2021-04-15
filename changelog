@@ -1,3 +1,28 @@
+turnkey-mediaserver-16.1 (1) turnkey; urgency=low
+
+  * Update Jellyfin to latest upstream stable (from jellyfin repos) - v10.7.2.
+
+  * Include 'jellyfin' user in 'video' user group by default - closes #1442.
+
+  * Include 'vainfo' Debian package by default to assist with GPU hardware
+    video acceleration. As per addemedum to #1442, additional info has been
+    added to both the tklweb-cp (aka the default landing page) and the
+    readme/appliance page.
+
+  * Build custom upstream (WebDAV-CGI) libfilesys-smbclient perl module from
+    source - closes #1597.
+    [ Dan Rhode <d.rohde@cms.hu-berlin.de> ]
+
+  * Resolve bug in firstboot inithook - closes #1596.
+
+  * Include 'webmin-exports' package (Webmin NFS exports module) - closes
+    #1521.
+
+  * Note: Please refer to turnkey-core's changelog for changes common to all
+    appliances. Here we only describe changes specific to this appliance.
+
+ -- Jeremy Davis <jeremy@turnkeylinux.org>  Fri, 16 Apr 2021 07:17:44 +1000
+
 turnkey-mediaserver-16.0 (1) turnkey; urgency=low
 
   * Update Jellyfin to latest upstream stable (from jellyfin repos) - v10.6.4.

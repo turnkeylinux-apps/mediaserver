@@ -4,12 +4,7 @@
 #include <turnkey/compression>
 #include <turnkey/nfs>
 
-
-libapache2-mod-php
-php-ssh2
 sudo
 
-apt-transport-https
-python-requests  /* Jellyfin dependency*/
-mediainfo        /* Jellyfin dependency*/
-
+mediainfo       /* Jellyfin dependency*/
+vainfo          /* GPU video acceleration info tool */
