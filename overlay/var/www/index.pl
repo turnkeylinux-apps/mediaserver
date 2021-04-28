@@ -1,3 +1,9 @@
+#!/usr/bin/perl
+
+print <<EOF;
+Content-Type: text/html; charset=utf-8
+
+
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 
 <html lang="en">
@@ -8,15 +14,15 @@
 
         <title>TurnKey Mediaserver</title>
         
-        <link rel="stylesheet" href="css/ui.tabs.css" type="text/css" media="print, projection, screen"/>
-        <link rel="stylesheet" href="css/base.css" type="text/css"/>
+        <link rel="stylesheet" href="css/ui.tabs.css" type="text/css" media="print, projection, screen">
+        <link rel="stylesheet" href="css/base.css" type="text/css">
 
         <script src="js/jquery-1.2.6.js" type="text/javascript"></script>
         <script src="js/ui.core.js" type="text/javascript"></script>
         <script src="js/ui.tabs.js" type="text/javascript"></script>
         <script type="text/javascript">
-            $(function() {
-                $('#container-1 > ul').tabs({ fx: { opacity: 'toggle'} });
+            \$(function() {
+                \$('#container-1 > ul').tabs({ fx: { opacity: 'toggle'} });
             });
         </script>
     </head>
@@ -33,35 +39,29 @@
                 <div class="fragment-content" style="left:50%;margin:0 auto">
                     <div style="float:left;width:12%"></div>
                     <div style="float:left;width:20%">
-                        <a href="https://<?php print
-                        $_SERVER{'HTTP_HOST'}; ?>:12320"><img
+                        <a href="https://$ENV{HTTP_HOST}:12320"><img
                         src="images/shell.png"/>Web Shell</a>
                     </div>
                     <div style="float:left;width:20%">
-                        <a href="https://<?php print
-                        $_SERVER{'HTTP_HOST'}; ?>:12321"><img
+                        <a href="https://$ENV{HTTP_HOST}:12321"><img
                         src="images/webmin.png"/>Webmin</a>
                     </div>
                     <div style="float:left;width:20%">
-                        <a href="https://<?php print
-                        $_SERVER{'HTTP_HOST'}; ?>:443"><img
+                        <a href="https://$ENV{HTTP_HOST}:443"><img
                         src="images/filemanager.png"/>File Manager<br/>(WebDAV)</a>
                     </div>
                     <div style="float:left;width:13%"></div>
 
                     <div style="float:left;width:20%">
-                        <a href="https://<?php print
-                        $_SERVER{'HTTP_HOST'}; ?>:12321/samba/index.cgi">
+                        <a href="https://$ENV{HTTP_HOST}:12321/samba/index.cgi">
                         <img src="images/samba.png"/>Samba<br/>(via webmin)</a>
                     </div>
                     <div style="float:left;width:20%">
-                        <a href="http://<?php print
-                        $_SERVER{'HTTP_HOST'}; ?>:8096"><img
+                        <a href="http://$ENV{HTTP_HOST}:8096"><img
                         src="images/jellyfin.png"/>Jellyfin<br/>(HTTP)</a>
                     </div>
                     <div style="float:left;width:20%">
-                        <a href="https://<?php print
-                        $_SERVER{'HTTP_HOST'}; ?>:12322"><img
+                        <a href="https://$ENV{HTTP_HOST}:12322"><img
                         src="images/jellyfin.png"/>Jellyfin<br />(HTTPS)</a>
                     </div>
                     <div style="float:left;width:10%"></div>
@@ -83,10 +83,9 @@
                             </li>
                         </ul>
                     </div>
-    
                 </div>
             </div>
-
         </div>
     </body>
 </html>
+EOF
