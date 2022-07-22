@@ -90,6 +90,5 @@ rm -r /sys/*
 # Apache config for reverse proxy
 echo 'Listen 12322' >> /etc/apache2/ports.conf
 a2ensite jellyfin-proxy.conf
-a2enmod headers
 a2enmod proxy_http
 a2enmod proxy_wstunnel
