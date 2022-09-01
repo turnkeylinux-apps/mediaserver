@@ -9,7 +9,7 @@ curl -sS $APT_GPG_URL | apt-key --keyring /usr/share/keyrings/jellyfin.gpg add -
 
 apt-get update
 apt-get -y install jellyfin
-apt install -y jellyfin-ffmpeg5
+apt-get -y install jellyfin-ffmpeg5
 
 # Rename the file server for WebDAVCGI
 CONF=/var/www/webdavcgi/webdav.conf
