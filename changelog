@@ -1,13 +1,15 @@
-turnkey-mediaserver-17.0 (1) turnkey; urgency=low
+turnkey-mediaserver-17.1 (1) turnkey; urgency=low
 
-  * Update Jellyfin to latest upstream stable (from jellyfin repos) - v10.7.7.
+  * Update JellyFin to latest upstream stable(from jellyfin repos) v10.7.7. [Zhenya Hvorostian <zhenya@turnkeylinux.org>]
 
-  * Add "Logout" button to WebDAV via custom code addition - closes #989.
+  * Add "logout" button to WebDAV via custom code addition - closes #989. [Zhenya Hvorostian <zhenya@turnkeylinux.org>]
+
+  * Update JellyFin code to install dependency without error code using apt-get.
 
   * Note: Please refer to turnkey-core's 17.0 changelog for changes common to all
     appliances. Here we only describe changes specific to this appliance.
 
- -- Zhenya Hvorostian <zhenya@turnkeylinux.org>  Tue, 08 Feb 2022 19:24:24 +0300
+ -- Mattie Darden  <mattie@turnkeylinux.org>  Thu, 01 Sep 2022 23:35:47 +0000
 
 turnkey-mediaserver-16.1 (1) turnkey; urgency=low
 
