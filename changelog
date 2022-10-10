@@ -1,3 +1,13 @@
+turnkey-mediaserver-17.1 (1) turnkey; urgency=low
+
+  * Updated all Debian packages to latest.
+    [ autopatched by buildtasks ]
+
+  * Patched bugfix release. Closes #1734.
+    [ autopatched by buildtasks ]
+
+ -- Jeremy Davis <jeremy@turnkeylinux.org>  Wed, 21 Sep 2022 05:01:24 +0000
+
 turnkey-mediaserver-17.0 (1) turnkey; urgency=low
 
   * Update JellyFin to latest upstream stable (from jellyfin repos) v10.8.4.
