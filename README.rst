@@ -13,24 +13,24 @@ and on top of that:
 
 - SSL support out of the box.
 
-- Media server (`Jellyfin`_) configurations:
+- Media server (`Jellyfin`_) configuration:
    
    - Web UI listening on ports 8096 (http) and 8920 (https - uses Jellyfin's
      own custom SSL/TLS certificate - see more below).
-   - Preconfigured reverse proxy to connect to your Jellyfin server via port
+   - Pre-configured reverse proxy to connect to your Jellyfin server via port
      12322 using system SSL/TLS certificates.
-   - Preconfigured path substitution for Samba access.
-   - Preconfigured Music, Movies, TVShows, and Photos directories.
-   - Initial preconfiguration to support hardware video acceleration (VA).
+   - Pre-configured path substitution for Samba access.
+   - Pre-configured Music, Movies, TVShows, and Photos directories.
+   - Initial configuration to support hardware video acceleration (VA).
      Additional steps are still required - please see the relevant `Jellyfin
      VA documentation`_. Installation of the specific drivers for your
      hardware will also be required (should be available from Debian
      repositories).
 
-- File server (`Samba`_) configurations:
+- File server (`Samba`_) configuration:
    
-   - Preconfigured wordgroup: WORKGROUP
-   - Preconfigured netbios name: MEDIASERVER
+   - Pre-configured wordgroup: WORKGROUP
+   - Pre-configured netbios name: MEDIASERVER
    - Configured root as administrative samba user.
    - Configured shares:
       
