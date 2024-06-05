@@ -27,7 +27,7 @@ Content-Type: text/html; charset=utf-8
         </script>
     </head>
 
-    <body>
+    <body style="background: white">
         <h1>TurnKey Mediaserver</h1>
         
         <div id="container-1">
@@ -39,10 +39,6 @@ Content-Type: text/html; charset=utf-8
                 <div class="fragment-content" style="left:50%;margin:0 auto">
                     <div style="float:left;width:12%"></div>
                     <div style="float:left;width:20%">
-                        <a href="https://$ENV{HTTP_HOST}:12320"><img
-                        src="images/shell.png"/>Web Shell</a>
-                    </div>
-                    <div style="float:left;width:20%">
                         <a href="https://$ENV{HTTP_HOST}:12321"><img
                         src="images/webmin.png"/>Webmin</a>
                     </div>
@@ -50,7 +46,8 @@ Content-Type: text/html; charset=utf-8
                         <a href="https://$ENV{HTTP_HOST}:443"><img
                         src="images/filemanager.png"/>File Manager<br/>(WebDAV)</a>
                     </div>
-                    <div style="float:left;width:13%"></div>
+                    <div style="float:left;width:28%"></div>
+                    <div style="float:left;width:12%"></div>
 
                     <div style="float:left;width:20%">
                         <a href="https://$ENV{HTTP_HOST}:12321/samba/index.cgi">

@@ -2,7 +2,6 @@ Landing Page:    http://$ipaddr
 WebDAV:          https://$ipaddr
 Jellyfin:        http://$ipaddr:8096
                  https://$ipaddr:12322
-Web shell:       https://$ipaddr:12320
 Webmin:          https://$ipaddr:12321
 SMB/CIFS:        \\$ipaddr (ports 139/445)
 SSH/SFTP:        root@$ipaddr (port 22)
