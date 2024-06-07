@@ -1,10 +1,7 @@
 #include <turnkey/base>
-#include <turnkey/samba>
-#include <turnkey/samba-dav>
-#include <turnkey/compression>
-#include <turnkey/nfs>
+#include <turnkey/fileserver>
 
 sudo
 
-mediainfo       /* Jellyfin dependency*/
+mediainfo       /* Jellyfin dependency */
 vainfo          /* GPU video acceleration info tool */
