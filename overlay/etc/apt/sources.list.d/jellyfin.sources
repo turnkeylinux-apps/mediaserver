@@ -1,0 +1,6 @@
+Types: deb
+URIs: https://repo.jellyfin.org/debian
+Suites: bookworm
+Components: main
+Architectures: amd64
+Signed-By: /usr/share/keyrings/jellyfin.gpg
