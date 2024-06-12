@@ -4,10 +4,11 @@ ADMIN_USER="jellyfin"
 ADMIN_PASS="$(mcookie)"
 
 # download jellyfin repo key
-APT_GPG_URL=https://repo.jellyfin.org/debian/jellyfin_team.gpg.key
+APT_GPG_URL=https://repo.jellyfin.org/jellyfin_team.gpg.key
 curl -sS $APT_GPG_URL | apt-key --keyring /usr/share/keyrings/jellyfin.gpg add -
 
 apt-get update
+
 apt-get -y install jellyfin
 apt-get -y install jellyfin-ffmpeg5
 
