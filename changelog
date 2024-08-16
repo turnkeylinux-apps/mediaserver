@@ -1,3 +1,11 @@
+turnkey-mediaserver-18.1 (1) turnkey; urgency=low
+
+  # Update Jellyfin to latest upstream - v10.9.9.
+
+  * Ensure jellyfin is not removed in proxmox build - closes #1974.
+
+ -- Jeremy Davis <jeremy@turnkeylinux.org>  Thu, 15 Aug 2024 22:58:00 +0000
+
 turnkey-mediaserver-18.0 (1) turnkey; urgency=low
 
   * Add wsdd package for Windows Service for Devices - so Fileserver shows up

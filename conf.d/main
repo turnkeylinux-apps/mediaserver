@@ -7,11 +7,10 @@ ADMIN_PASS="$(mcookie)"
 APT_GPG_URL=https://repo.jellyfin.org/jellyfin_team.gpg.key
 curl -sS $APT_GPG_URL | apt-key --keyring /usr/share/keyrings/jellyfin.gpg add -
 
-apt-get update
 # disable tkldev squid cache on install - works around weird local issue at
 # build time
-apt-get -o Acquire::http::proxy=false -y install jellyfin
-apt-get -o Acquire::http::proxy=false -y install jellyfin-ffmpeg5
+apt-get -o Acquire::https::proxy=false update
+apt-get -o Acquire::https::proxy=false -y install jellyfin
 
 # Rename the file server for WebDAVCGI
 CONF=/var/www/webdavcgi/webdav.conf
