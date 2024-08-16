@@ -1,6 +1,6 @@
 turnkey-mediaserver-18.1 (1) turnkey; urgency=low
 
-  # Update Jellyfin to latest upstream - v10.9.9.
+  * Update Jellyfin to latest upstream - v10.9.9.
 
   * Ensure jellyfin is not removed in proxmox build - closes #1974.
 
