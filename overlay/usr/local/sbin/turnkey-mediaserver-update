@@ -1,0 +1,83 @@
+#!/bin/bash -e
+
+set -o pipefail
+
+SOURCE_RECORD=/usr/local/share/turnkey-mediaserver/source
+KEYRING=/etc/apt/keyrings/jellyfin.gpg
+SOURCES=/etc/apt/sources.list.d/jellyfin.sources
+EXPECTED_FINGERPRINT=4918AABC486CA052358D778D49023CD01DE21A7B
+
+usage() {
+    echo "usage: $0 --check | --apply [--dry-run]" >&2
+    exit 2
+}
+
+mode=
+dry_run=false
+while [ "$#" -gt 0 ]; do
+    case "$1" in
+        --check|--apply)
+            [ -z "$mode" ] || usage
+            mode=${1#--}
+            ;;
+        --dry-run)
+            dry_run=true
+            ;;
+        *)
+            usage
+            ;;
+    esac
+    shift
+done
+[ -n "$mode" ] || usage
+[ "$mode" = apply ] || [ "$dry_run" = false ] || usage
+
+[ -s "$SOURCE_RECORD" ]
+grep -qx 'repository=https://repo.jellyfin.org/debian' "$SOURCE_RECORD"
+grep -qx 'suite=trixie' "$SOURCE_RECORD"
+grep -qx "signing_fingerprint=$EXPECTED_FINGERPRINT" "$SOURCE_RECORD"
+grep -qx 'URIs: https://repo.jellyfin.org/debian' "$SOURCES"
+grep -qx 'Suites: trixie' "$SOURCES"
+grep -qx 'Signed-By: /etc/apt/keyrings/jellyfin.gpg' "$SOURCES"
+
+fingerprint=$(gpg --batch --show-keys --with-colons "$KEYRING" |
+    awk -F: '$1 == "fpr" {print $10; exit}')
+[ "$fingerprint" = "$EXPECTED_FINGERPRINT" ]
+
+apt-get -o Acquire::https::proxy=false update >/dev/null
+installed=$(dpkg-query -W -f='${Version}' jellyfin)
+candidate=$(apt-cache policy jellyfin | awk '/Candidate:/ {print $2; exit}')
+[ -n "$candidate" ] && [ "$candidate" != '(none)' ]
+
+status=up-to-date
+if dpkg --compare-versions "$candidate" gt "$installed"; then
+    status=update-available
+fi
+
+echo "installed=$installed"
+echo "candidate=$candidate"
+echo "channel=official Jellyfin stable APT packages for Debian 13"
+echo "signing_fingerprint=$fingerprint"
+echo "status=$status"
+
+[ "$mode" = apply ] || exit 0
+if [ "$dry_run" = true ]; then
+    apt-get -s install --only-upgrade \
+        jellyfin jellyfin-server jellyfin-web jellyfin-ffmpeg7 >/dev/null
+    echo 'apply=dry-run signed package transaction'
+    exit 0
+fi
+
+[ "$(id -u)" -eq 0 ]
+if [ "$status" = up-to-date ]; then
+    echo 'apply=no-op'
+    exit 0
+fi
+
+apt-get -o Acquire::https::proxy=false -y install --only-upgrade \
+    jellyfin jellyfin-server jellyfin-web jellyfin-ffmpeg7
+systemctl restart jellyfin
+
+installed=$(dpkg-query -W -f='${Version}' jellyfin)
+sed -i "s/^installed_version=.*/installed_version=$installed/" "$SOURCE_RECORD"
+echo "apply=installed $installed"

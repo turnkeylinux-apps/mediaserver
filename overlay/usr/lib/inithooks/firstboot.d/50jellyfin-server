@@ -1,40 +1,30 @@
 #!/bin/bash -e
-# setup Emby media server
+# Configure Jellyfin after the appliance administrator password is available.
 
 . /etc/default/inithooks
 
-JELLYFIN_SERVER=127.0.0.1
-JELLYFIN_PORT=8096
-CURL="curl --output /dev/null --silent --head --fail"
+JELLYFIN_BASE=http://127.0.0.1:8096
 
 chown -R jellyfin:users /var/lib/jellyfin
-systemctl enable jellyfin
+systemctl enable --now jellyfin
 
-# Start Emby server
-service jellyfin start
-
-# Delay until jellyfin has finished starting
-until $($CURL http://$JELLYFIN_SERVER:$JELLYFIN_PORT); do
-    echo -n .
+ready=false
+for attempt in $(seq 1 60); do
+    if curl -fsS "$JELLYFIN_BASE/health" >/dev/null; then
+        ready=true
+        break
+    fi
     sleep 5
 done
+[ "$ready" = true ]
 
-[ -e $INITHOOKS_CONF ] && . $INITHOOKS_CONF
-$INITHOOKS_PATH/bin/jellyfin-server.py --pass="$APP_PASS"
+[ -e "$INITHOOKS_CONF" ] && . "$INITHOOKS_CONF"
+"$INITHOOKS_PATH/bin/jellyfin-server.py" --pass="$APP_PASS"
 
-if [ "$APP_PASS" != "" ]; then
-    echo $APP_PASS > /etc/jellyfinpass
-else
-    rm -f /etc/jellyfinpass
-fi
-
-service jellyfin stop
-
-# https on Emby requires PKCS #12 certificate
+systemctl stop jellyfin
 JELLYFIN_CONFIG=/etc/jellyfin/system.xml
-sed -i '/<IsBehindProxy*/d' $JELLYFIN_CONFIG
-sed -i "/<\/ServerConfiguration/i \ <IsBehindProxy>true</IsBehindProxy>" $JELLYFIN_CONFIG
+sed -i '/<IsBehindProxy*/d' "$JELLYFIN_CONFIG"
+sed -i "/<\/ServerConfiguration/i \ <IsBehindProxy>true</IsBehindProxy>" \
+    "$JELLYFIN_CONFIG"
 
-# Restart Emby
-service jellyfin stop
-service jellyfin start
+systemctl start jellyfin

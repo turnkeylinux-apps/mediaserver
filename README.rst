@@ -14,6 +14,8 @@ and on top of that:
 - SSL support out of the box.
 
 - Media server (`Jellyfin`_) configuration:
+
+   - Installed from Jellyfin's signed stable APT repository for Debian 13.
    
    - Web UI listening on ports 8096 (http) and 8920 (https - uses Jellyfin's
      own custom SSL/TLS certificate - see more below).
@@ -65,6 +67,9 @@ and on top of that:
    - Pre-configured repositories (storage, user home directories).
 
 - Default storage: */srv/storage*
+- Check the signed Jellyfin update channel with
+  ``turnkey-mediaserver-update --check``. Apply an available package update
+  with ``turnkey-mediaserver-update --apply``.
 - Accessing file server via samba on the command line::
 
     smbclient //1.0.0.61/storage -Uroot
@@ -87,7 +92,7 @@ Credentials *(passwords set at first boot)*
 -------------------------------------------
 
 -  Jellyfin webUI: username **jellyfin**
--  Webmin, Webshell, SSH, Samba: username **root**
+-  Webmin, SSH, Samba: username **root**
 -  Web based file manager (WebDAV CGI):
    
    - username **root** (or Samba users)
@@ -98,4 +103,3 @@ Credentials *(passwords set at first boot)*
 .. _Samba: https://www.samba.org/samba/what_is_samba.html
 .. _issue #1188: https://github.com/turnkeylinux/tracker/issues/1188
 .. _WebDAV CGI: https://github.com/DanRohde/webdavcgi
-

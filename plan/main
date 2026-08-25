@@ -2,6 +2,9 @@
 #include <turnkey/fileserver>
 
 sudo
+gnupg
+jq
+curl
 
 mediainfo       /* Jellyfin dependency */
 vainfo          /* GPU video acceleration info tool */
