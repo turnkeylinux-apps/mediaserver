@@ -15,14 +15,18 @@ access, and the signed updater check and dry run.
 
 ## Verification state
 
-Static shell parsing, Python compilation, source-contract checks, executable
-mode checks, result-schema checks, and whitespace checks are the candidate
-gates. An exact appliance run is intentionally left for the independent Wave 2
-runner because the shared runner currently has a known private-source cleanup
-dependency failure. This is an infrastructure boundary and consumes zero
-product-fix loops.
+Exact run `20260826t155731z-1143-18806` passed at source
+`d075b5651852cac080a7bd28fe8c4d3e2e189cc4`. It built and imported the Trixie
+root, completed boot and firstboot, authenticated with the configured Jellyfin
+administrator, verified the four libraries, indexed generated audio, obtained
+playback metadata, exercised direct and proxied APIs, checked service state,
+and resolved the signed updater check and dry run. The retained report SHA-256
+is `5e8c6806648517a83985f365a413636b819a9722894a1601b1b19d5b620562f9`.
 
-Product-fix loops used: 0 of 3.
+Product-fix loops used: 2 of 3. The fixes keep the firstboot password out of
+process arguments and wait for the Jellyfin startup API before configuring the
+server. Readiness-log suppression and removal of an unused PHP configuration
+pass were acceptance-path corrections and consumed zero product loops.
 
 ## Deferred coverage
 
