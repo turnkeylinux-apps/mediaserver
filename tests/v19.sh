@@ -31,11 +31,8 @@ api_version=$(jq -er '.Version' <<<"$public_info")
 [ "$api_version" = "${installed%%+*}" ]
 [ "$(jq -er '.Version' <<<"$proxy_info")" = "$api_version" ]
 
-if [ -s /etc/jellyfin/turnkey-bootstrap-password ]; then
-    password=$(cat /etc/jellyfin/turnkey-bootstrap-password)
-else
-    password=${JELLYFIN_TEST_PASSWORD:-turnkey}
-fi
+[ ! -e /etc/jellyfin/turnkey-bootstrap-password ]
+password=${TKL_TEST_APP_PASS:?missing exact-harness application password}
 authentication=$(curl -fsS -X POST \
     http://127.0.0.1:8096/Users/AuthenticateByName \
     -H "X-Emby-Authorization: $AUTHORIZATION" \
@@ -101,10 +98,16 @@ grep -qx 'status=up-to-date' <<<"$updater_check"
 grep -qx 'apply=dry-run signed package transaction' \
     < <($UPDATER --apply --dry-run)
 
-echo 'package_source=official Jellyfin stable APT repository for Debian 13'
-echo "installed_version=$installed"
-echo 'runtime_checks=admin API login, direct web API, TLS reverse proxy, four default libraries, audio scan, playback metadata, systemd service'
-echo 'updater_command=turnkey-mediaserver-update --check; turnkey-mediaserver-update --apply --dry-run'
-echo "updater_result=up-to-date candidate $candidate; signed dry-run transaction accepted"
-echo 'updater_channel=official Jellyfin stable APT packages for Debian 13'
-echo 'integrity_evidence=APT key fingerprint 4918AABC486CA052358D778D49023CD01DE21A7B and dpkg installed package version'
+if [ -n "${TKL_TEST_RESULT:-}" ]; then
+    cat > "$TKL_TEST_RESULT" <<EOF
+package_source=official Jellyfin stable APT repository for Debian 13
+installed_version=$installed
+runtime_checks=admin API login, direct web API, TLS reverse proxy, four default libraries, audio scan, playback metadata, systemd service
+updater_command=turnkey-mediaserver-update --check; turnkey-mediaserver-update --apply --dry-run
+updater_result=up-to-date candidate $candidate; signed dry-run transaction accepted
+updater_channel=official Jellyfin stable APT packages for Debian 13
+integrity_evidence=APT key fingerprint 4918AABC486CA052358D778D49023CD01DE21A7B and dpkg installed package version
+EOF
+fi
+
+echo "PASS: Jellyfin $installed login, library scan, playback metadata, proxy, and updater"

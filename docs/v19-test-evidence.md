@@ -15,14 +15,29 @@ access, and the signed updater check and dry run.
 
 ## Verification state
 
-Static shell parsing, Python compilation, source-contract checks, executable
-mode checks, result-schema checks, and whitespace checks are the candidate
-gates. An exact appliance run is intentionally left for the independent Wave 2
-runner because the shared runner currently has a known private-source cleanup
-dependency failure. This is an infrastructure boundary and consumes zero
-product-fix loops.
+Static shell parsing, Python syntax parsing, source-contract checks, executable
+mode checks, result-schema checks, credential-boundary checks, and whitespace
+checks are the candidate gates. The exact appliance run is pending its position
+in the serialized Wave 2 runner queue.
 
-Product-fix loops used: 0 of 3.
+Product-fix loops used: 0 of 6. Test and evidence corrections consume zero.
+
+The exact command is:
+
+```sh
+TKLDEV_CONTAINER=tkldev19-wave2 \
+TKL_HARNESS_STATE_DIR=/home/agent/.local/state/turnkey-v19-harness-wave2 \
+TKL_HARNESS_LOCK_FILE=/home/agent/.local/state/turnkey-v19-harness-wave2/build.lock \
+TKL_HARNESS_LOCK_TIMEOUT=3600 \
+TKL_HARNESS_DOCKER_LIMIT_BYTES=53687091200 \
+/home/agent/turnkey/tools/test-v19-appliance mediaserver \
+  --source /home/agent/.local/worktrees/turnkey-apps/mediaserver/wish-mediaserver-v19-trixie
+```
+
+The acceptance test consumes the firstboot password through
+`TKL_TEST_APP_PASS`, verifies the one-time bootstrap credential was removed,
+and writes the seven-key result record to `TKL_TEST_RESULT` for retention by
+the exact harness.
 
 ## Deferred coverage
 
