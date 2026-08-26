@@ -2,6 +2,8 @@
 
 set -o pipefail
 
+result=${TKL_TEST_RESULT:?TKL_TEST_RESULT is required}
+app_password=${TKL_TEST_APP_PASS:?TKL_TEST_APP_PASS is required}
 SOURCE_RECORD=/usr/local/share/turnkey-mediaserver/source
 UPDATER=/usr/local/sbin/turnkey-mediaserver-update
 AUTHORIZATION='MediaBrowser Client="TurnKey v19 test", Device="Acceptance", DeviceId="turnkey-v19", Version="19"'
@@ -31,18 +33,12 @@ api_version=$(jq -er '.Version' <<<"$public_info")
 [ "$api_version" = "${installed%%+*}" ]
 [ "$(jq -er '.Version' <<<"$proxy_info")" = "$api_version" ]
 
-if [ -s /etc/jellyfin/turnkey-bootstrap-password ]; then
-    password=$(cat /etc/jellyfin/turnkey-bootstrap-password)
-else
-    password=${JELLYFIN_TEST_PASSWORD:-turnkey}
-fi
 authentication=$(curl -fsS -X POST \
     http://127.0.0.1:8096/Users/AuthenticateByName \
     -H "X-Emby-Authorization: $AUTHORIZATION" \
     -H 'Content-Type: application/json' \
-    --data "$(jq -n --arg username jellyfin --arg password "$password" \
+    --data "$(jq -n --arg username jellyfin --arg password "$app_password" \
         '{Username:$username,Pw:$password}')")
-unset password
 token=$(jq -er '.AccessToken' <<<"$authentication")
 user_id=$(jq -er '.User.Id' <<<"$authentication")
 
@@ -101,10 +97,12 @@ grep -qx 'status=up-to-date' <<<"$updater_check"
 grep -qx 'apply=dry-run signed package transaction' \
     < <($UPDATER --apply --dry-run)
 
-echo 'package_source=official Jellyfin stable APT repository for Debian 13'
-echo "installed_version=$installed"
-echo 'runtime_checks=admin API login, direct web API, TLS reverse proxy, four default libraries, audio scan, playback metadata, systemd service'
-echo 'updater_command=turnkey-mediaserver-update --check; turnkey-mediaserver-update --apply --dry-run'
-echo "updater_result=up-to-date candidate $candidate; signed dry-run transaction accepted"
-echo 'updater_channel=official Jellyfin stable APT packages for Debian 13'
-echo 'integrity_evidence=APT key fingerprint 4918AABC486CA052358D778D49023CD01DE21A7B and dpkg installed package version'
+{
+    echo 'package_source=official Jellyfin stable APT repository for Debian 13'
+    echo "installed_version=$installed"
+    echo 'runtime_checks=admin API login, direct web API, TLS reverse proxy, four default libraries, audio scan, playback metadata, systemd service'
+    echo 'updater_command=turnkey-mediaserver-update --check; turnkey-mediaserver-update --apply --dry-run'
+    echo "updater_result=up-to-date candidate $candidate; signed dry-run transaction accepted"
+    echo 'updater_channel=official Jellyfin stable APT packages for Debian 13'
+    echo 'integrity_evidence=APT key fingerprint 4918AABC486CA052358D778D49023CD01DE21A7B and dpkg installed package version'
+} > "$result"
