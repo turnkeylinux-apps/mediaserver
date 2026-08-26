@@ -1,6 +1,7 @@
-#!/bin/bash -e
+#!/bin/bash
 
-set -o pipefail
+set -Eeuo pipefail
+shopt -s inherit_errexit
 
 SOURCE_RECORD=/usr/local/share/turnkey-mediaserver/source
 UPDATER=/usr/local/sbin/turnkey-mediaserver-update
@@ -99,7 +100,7 @@ playback=$(curl -fsS -X POST \
     --data '{"StartTimeTicks":0,"IsPlayback":true,"AutoOpenLiveStream":false}')
 jq -e '.MediaSources[0].Id | length > 0' <<<"$playback" >/dev/null
 
-updater_fixture=$("$TEST_DIR/updater-apply-fixture.sh" "$FIXTURE")
+updater_fixture=$(bash "$TEST_DIR/updater-apply-fixture.sh" "$FIXTURE")
 grep -qx 'fixture_from=10.11.10+deb13' <<<"$updater_fixture"
 grep -qx 'fixture_to=10.11.11+deb13' <<<"$updater_fixture"
 grep -qx \
