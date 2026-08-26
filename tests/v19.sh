@@ -4,6 +4,7 @@ set -o pipefail
 
 SOURCE_RECORD=/usr/local/share/turnkey-mediaserver/source
 UPDATER=/usr/local/sbin/turnkey-mediaserver-update
+TEST_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 AUTHORIZATION='MediaBrowser Client="TurnKey v19 test", Device="Acceptance", DeviceId="turnkey-v19", Version="19"'
 FIXTURE='/srv/storage/Music/Wave 2 Acceptance Tone.mp3'
 
@@ -24,6 +25,13 @@ dpkg --compare-versions "$installed" ge '10.11.11+deb13'
     "$installed" ]
 systemctl is-active --quiet jellyfin
 systemctl is-enabled --quiet jellyfin
+systemctl is-active --quiet smbd
+grep -Eq '^[[:space:]]*netbios name = MEDIASERVER$' /etc/samba/smb.conf
+grep -Eq '^[[:space:]]*path = /srv/storage$' /etc/samba/smb.conf
+grep -q "'MEDIASERVER' =>" /var/www/webdavcgi/webdav.conf
+id -nG jellyfin | tr ' ' '\n' | grep -qx users
+id -nG jellyfin | tr ' ' '\n' | grep -qx video
+command -v vainfo >/dev/null
 
 public_info=$(curl -fsS http://127.0.0.1:8096/System/Info/Public)
 proxy_info=$(curl -fkSs https://127.0.0.1:12322/System/Info/Public)
@@ -33,12 +41,12 @@ api_version=$(jq -er '.Version' <<<"$public_info")
 
 [ ! -e /etc/jellyfin/turnkey-bootstrap-password ]
 password=${TKL_TEST_APP_PASS:?missing exact-harness application password}
-authentication=$(curl -fsS -X POST \
-    http://127.0.0.1:8096/Users/AuthenticateByName \
-    -H "X-Emby-Authorization: $AUTHORIZATION" \
-    -H 'Content-Type: application/json' \
-    --data "$(jq -n --arg username jellyfin --arg password "$password" \
-        '{Username:$username,Pw:$password}')")
+authentication=$(jq -n --arg username jellyfin --arg password "$password" \
+    '{Username:$username,Pw:$password}' |
+    curl -fsS -X POST \
+        http://127.0.0.1:8096/Users/AuthenticateByName \
+        -H "X-Emby-Authorization: $AUTHORIZATION" \
+        -H 'Content-Type: application/json' --data-binary @-)
 unset password
 token=$(jq -er '.AccessToken' <<<"$authentication")
 user_id=$(jq -er '.User.Id' <<<"$authentication")
@@ -91,23 +99,24 @@ playback=$(curl -fsS -X POST \
     --data '{"StartTimeTicks":0,"IsPlayback":true,"AutoOpenLiveStream":false}')
 jq -e '.MediaSources[0].Id | length > 0' <<<"$playback" >/dev/null
 
-updater_check=$($UPDATER --check)
-candidate=$(awk -F= '$1 == "candidate" {print $2}' <<<"$updater_check")
-[ -n "$candidate" ]
-grep -qx 'status=up-to-date' <<<"$updater_check"
-grep -qx 'apply=dry-run signed package transaction' \
-    < <($UPDATER --apply --dry-run)
+updater_fixture=$("$TEST_DIR/updater-apply-fixture.sh" "$FIXTURE")
+grep -qx 'fixture_from=10.11.10+deb13' <<<"$updater_fixture"
+grep -qx 'fixture_to=10.11.11+deb13' <<<"$updater_fixture"
+grep -qx \
+    'fixture_result=admin re-login, four libraries, indexed media, and source provenance survived actual updater apply' \
+    <<<"$updater_fixture"
+candidate=$(awk -F= '$1 == "fixture_to" {print $2}' <<<"$updater_fixture")
 
 if [ -n "${TKL_TEST_RESULT:-}" ]; then
     cat > "$TKL_TEST_RESULT" <<EOF
 package_source=official Jellyfin stable APT repository for Debian 13
 installed_version=$installed
-runtime_checks=admin API login, direct web API, TLS reverse proxy, four default libraries, audio scan, playback metadata, systemd service
-updater_command=turnkey-mediaserver-update --check; turnkey-mediaserver-update --apply --dry-run
-updater_result=up-to-date candidate $candidate; signed dry-run transaction accepted
+runtime_checks=admin API login, direct web API, TLS reverse proxy, four default libraries, audio scan, playback metadata, Jellyfin and Samba services, MediaServer shared-storage configuration, post-update admin re-login and data persistence
+updater_command=disposable official package downgrade to 10.11.10+deb13; turnkey-mediaserver-update --check; turnkey-mediaserver-update --apply
+updater_result=actual signed package update to $candidate; admin, library, media, and source provenance preserved
 updater_channel=official Jellyfin stable APT packages for Debian 13
-integrity_evidence=APT key fingerprint 4918AABC486CA052358D778D49023CD01DE21A7B and dpkg installed package version
+integrity_evidence=APT signature with key fingerprint 4918AABC486CA052358D778D49023CD01DE21A7B, exact dpkg versions, unchanged source provenance, and unchanged media SHA256 across the real update
 EOF
 fi
 
-echo "PASS: Jellyfin $installed login, library scan, playback metadata, proxy, and updater"
+echo "PASS: Jellyfin $installed login, media, proxy, and real 10.11.10 to 10.11.11 updater apply"
