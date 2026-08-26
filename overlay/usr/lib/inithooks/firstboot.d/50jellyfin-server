@@ -19,7 +19,8 @@ done
 [ "$ready" = true ]
 
 [ -e "$INITHOOKS_CONF" ] && . "$INITHOOKS_CONF"
-"$INITHOOKS_PATH/bin/jellyfin-server.py" --pass="$APP_PASS"
+printf '%s' "$APP_PASS" | \
+    "$INITHOOKS_PATH/bin/jellyfin-server.py" --pass-stdin
 
 systemctl stop jellyfin
 JELLYFIN_CONFIG=/etc/jellyfin/system.xml

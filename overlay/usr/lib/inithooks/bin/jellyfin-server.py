@@ -43,7 +43,9 @@ def prompt_password():
     try:
         from libinithooks.dialog_wrapper import Dialog
     except ImportError as error:
-        raise RuntimeError("a password must be supplied with --pass") from error
+        raise RuntimeError(
+            "a password must be supplied with --pass or --pass-stdin"
+        ) from error
 
     dialog = Dialog("TurnKey Linux - First boot configuration")
     return dialog.get_password(
@@ -54,9 +56,16 @@ def prompt_password():
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-p", "--pass", dest="password")
+    password_source = parser.add_mutually_exclusive_group()
+    password_source.add_argument("-p", "--pass", dest="password")
+    password_source.add_argument("--pass-stdin", action="store_true")
     args = parser.parse_args()
-    password = args.password if args.password is not None else prompt_password()
+    if args.pass_stdin:
+        password = sys.stdin.read()
+    elif args.password is not None:
+        password = args.password
+    else:
+        password = prompt_password()
     if not password:
         raise RuntimeError("the Jellyfin administrator password cannot be empty")
 
