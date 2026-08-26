@@ -77,10 +77,16 @@ ADMIN_PASS=$(mcookie)
 install -m 0600 /dev/null /etc/jellyfin/turnkey-bootstrap-password
 printf '%s\n' "$ADMIN_PASS" > /etc/jellyfin/turnkey-bootstrap-password
 
-curl -fsS -X POST "$JELLYFIN_BASE/Startup/Configuration" \
-    -H 'Content-Type: application/json' \
-    --data '{"UICulture":"en-US","MetadataCountryCode":"US","PreferredMetadataLanguage":"en"}' \
-    >/dev/null
+if ! curl -fsS --connect-timeout 5 --max-time 15 \
+        --retry 120 --retry-delay 2 --retry-max-time 240 \
+        -X POST "$JELLYFIN_BASE/Startup/Configuration" \
+        -H 'Content-Type: application/json' \
+        --data '{"UICulture":"en-US","MetadataCountryCode":"US","PreferredMetadataLanguage":"en"}' \
+        >/dev/null; then
+    echo 'Jellyfin startup configuration API did not become ready' >&2
+    tail -n 100 "$JELLYFIN_LOG_FILE" >&2 || true
+    exit 1
+fi
 curl -fsS "$JELLYFIN_BASE/Startup/User" >/dev/null
 curl -fsS -X POST "$JELLYFIN_BASE/Startup/User" \
     -H 'Content-Type: application/json' \

@@ -20,7 +20,14 @@ mode checks, result-schema checks, credential-boundary checks, and whitespace
 checks are the candidate gates. The exact appliance run is pending its position
 in the serialized Wave 2 runner queue.
 
-Product-fix loops used: 0 of 6. Test and evidence corrections consume zero.
+Product-fix loops used: 1 of 6. Test and evidence corrections consume zero.
+
+The first exact run (`20260826t115503z-2240736-11770`) reproduced a product
+startup race: Jellyfin 10.11.11 returned ready from `/health`, then returned
+HTTP 503 from the real `/Startup/Configuration` bootstrap API. Product loop 1
+keeps the health gate and boundedly retries that configuration request for up
+to four minutes. A terminal failure now includes the last 100 lines of
+Jellyfin's build log. The correction is awaiting its coordinated exact rerun.
 
 The exact command is:
 
