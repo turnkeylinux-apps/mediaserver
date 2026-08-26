@@ -63,7 +63,7 @@ su -s /bin/bash jellyfin -c "/usr/bin/jellyfin \
 
 ready=false
 for attempt in $(seq 1 120); do
-    if curl -fsS "$JELLYFIN_BASE/health" >/dev/null; then
+    if curl -fsS "$JELLYFIN_BASE/Startup/Configuration" >/dev/null; then
         ready=true
         break
     fi
