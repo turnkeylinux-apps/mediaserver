@@ -34,8 +34,20 @@ id -nG jellyfin | tr ' ' '\n' | grep -qx users
 id -nG jellyfin | tr ' ' '\n' | grep -qx video
 command -v vainfo >/dev/null
 
-public_info=$(curl -fsS http://127.0.0.1:8096/System/Info/Public)
-proxy_info=$(curl -fkSs https://127.0.0.1:12322/System/Info/Public)
+api_ready=false
+for attempt in $(seq 1 120); do
+    public_info=$(curl -fsS http://127.0.0.1:8096/System/Info/Public \
+        2>/dev/null || true)
+    proxy_info=$(curl -fkSs https://127.0.0.1:12322/System/Info/Public \
+        2>/dev/null || true)
+    if jq -e '.Version | length > 0' <<<"$public_info" >/dev/null 2>&1 &&
+            jq -e '.Version | length > 0' <<<"$proxy_info" >/dev/null 2>&1; then
+        api_ready=true
+        break
+    fi
+    sleep 2
+done
+[ "$api_ready" = true ]
 api_version=$(jq -er '.Version' <<<"$public_info")
 [ "$api_version" = "${installed%%+*}" ]
 [ "$(jq -er '.Version' <<<"$proxy_info")" = "$api_version" ]
