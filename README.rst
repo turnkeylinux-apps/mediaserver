@@ -21,7 +21,7 @@ and on top of that:
      own custom SSL/TLS certificate - see more below).
    - Pre-configured reverse proxy to connect to your Jellyfin server via port
      12322 using system SSL/TLS certificates.
-   - Pre-configured path substitution for Samba access.
+   - Pre-configured shared storage paths for Jellyfin and Samba access.
    - Pre-configured Music, Movies, TVShows, and Photos directories.
    - Initial configuration to support hardware video acceleration (VA).
      Additional steps are still required - please see the relevant `Jellyfin

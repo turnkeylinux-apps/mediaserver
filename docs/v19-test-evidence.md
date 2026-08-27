@@ -11,7 +11,10 @@ Apache 2.4 authorization syntax.
 The focused test is `tests/v19.sh`. It covers the normal appliance path:
 administrator login, the four preconfigured media directories, a tiny media
 scan, playback metadata, the systemd service, direct API access, TLS proxy
-access, and the signed updater check and dry run.
+access, and a signed real updater apply from the retained official
+`10.11.10+deb13` package to `10.11.11+deb13`. After the update it waits for the
+API and proves a fresh administrator login, libraries, indexed media bytes,
+item identity, and recorded source provenance survived.
 
 ## Verification state
 

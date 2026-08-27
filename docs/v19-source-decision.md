@@ -25,6 +25,12 @@ The acceptance boundary is the official stable APT channel rather than a
 single frozen package. Later signed stable releases remain eligible while the
 recorded `10.11.11+deb13` package establishes the v19 migration floor.
 
+Debian Trixie's package index contains the Jellyfin API client but no Jellyfin
+server package. The server therefore cannot be sourced from Debian itself.
+The official Jellyfin Trixie repository publishes the server, web, and
+metapackage builds, and retains both `10.11.10+deb13` and `10.11.11+deb13`.
+That retained pair is the disposable real-update acceptance boundary.
+
 Upstream release notes and support are available from the Jellyfin repository.
 Security reports belong in Jellyfin's private advisory form at
 `https://github.com/jellyfin/jellyfin/security/advisories/new`, not in a public
