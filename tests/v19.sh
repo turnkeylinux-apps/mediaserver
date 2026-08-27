@@ -1,11 +1,13 @@
-#!/bin/bash -e
+#!/bin/bash
 
-set -o pipefail
+set -Eeuo pipefail
+shopt -s inherit_errexit
 
 result=${TKL_TEST_RESULT:?TKL_TEST_RESULT is required}
 app_password=${TKL_TEST_APP_PASS:?TKL_TEST_APP_PASS is required}
 SOURCE_RECORD=/usr/local/share/turnkey-mediaserver/source
 UPDATER=/usr/local/sbin/turnkey-mediaserver-update
+TEST_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 AUTHORIZATION='MediaBrowser Client="TurnKey v19 test", Device="Acceptance", DeviceId="turnkey-v19", Version="19"'
 FIXTURE='/srv/storage/Music/Wave 2 Acceptance Tone.mp3'
 
@@ -26,9 +28,28 @@ dpkg --compare-versions "$installed" ge '10.11.11+deb13'
     "$installed" ]
 systemctl is-active --quiet jellyfin
 systemctl is-enabled --quiet jellyfin
+systemctl is-active --quiet smbd
+grep -Eq '^[[:space:]]*netbios name = MEDIASERVER$' /etc/samba/smb.conf
+grep -Eq '^[[:space:]]*path = /srv/storage$' /etc/samba/smb.conf
+grep -q "'MEDIASERVER' =>" /var/www/webdavcgi/webdav.conf
+id -nG jellyfin | tr ' ' '\n' | grep -qx users
+id -nG jellyfin | tr ' ' '\n' | grep -qx video
+command -v vainfo >/dev/null
 
-public_info=$(curl -fsS http://127.0.0.1:8096/System/Info/Public)
-proxy_info=$(curl -fkSs https://127.0.0.1:12322/System/Info/Public)
+api_ready=false
+for attempt in $(seq 1 120); do
+    public_info=$(curl -fsS http://127.0.0.1:8096/System/Info/Public \
+        2>/dev/null || true)
+    proxy_info=$(curl -fkSs https://127.0.0.1:12322/System/Info/Public \
+        2>/dev/null || true)
+    if jq -e '.Version | length > 0' <<<"$public_info" >/dev/null 2>&1 &&
+            jq -e '.Version | length > 0' <<<"$proxy_info" >/dev/null 2>&1; then
+        api_ready=true
+        break
+    fi
+    sleep 2
+done
+[ "$api_ready" = true ]
 api_version=$(jq -er '.Version' <<<"$public_info")
 [ "$api_version" = "${installed%%+*}" ]
 [ "$(jq -er '.Version' <<<"$proxy_info")" = "$api_version" ]
@@ -90,12 +111,13 @@ playback=$(curl -fsS -X POST \
     --data '{"StartTimeTicks":0,"IsPlayback":true,"AutoOpenLiveStream":false}')
 jq -e '.MediaSources[0].Id | length > 0' <<<"$playback" >/dev/null
 
-updater_check=$($UPDATER --check)
-candidate=$(awk -F= '$1 == "candidate" {print $2}' <<<"$updater_check")
-[ -n "$candidate" ]
-grep -qx 'status=up-to-date' <<<"$updater_check"
-grep -qx 'apply=dry-run signed package transaction' \
-    < <($UPDATER --apply --dry-run)
+updater_fixture=$(bash "$TEST_DIR/updater-apply-fixture.sh" "$FIXTURE")
+grep -qx 'fixture_from=10.11.10+deb13' <<<"$updater_fixture"
+grep -qx 'fixture_to=10.11.11+deb13' <<<"$updater_fixture"
+grep -qx \
+    'fixture_result=admin re-login, four libraries, indexed media, and source provenance survived actual updater apply' \
+    <<<"$updater_fixture"
+candidate=$(awk -F= '$1 == "fixture_to" {print $2}' <<<"$updater_fixture")
 
 {
     echo 'package_source=official Jellyfin stable APT repository for Debian 13'
