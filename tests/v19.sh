@@ -123,9 +123,9 @@ candidate=$(awk -F= '$1 == "fixture_to" {print $2}' <<<"$updater_fixture")
 {
     echo 'package_source=official Jellyfin stable APT repository for Debian 13'
     echo "installed_version=$installed"
-    echo 'runtime_checks=admin API login, direct web API, TLS reverse proxy, four default libraries, audio scan, playback metadata, systemd service'
-    echo 'updater_command=turnkey-mediaserver-update --check; turnkey-mediaserver-update --apply --dry-run'
-    echo "updater_result=up-to-date candidate $candidate; signed dry-run transaction accepted"
+    echo 'runtime_checks=firstboot secret removal, admin API login, direct web API, TLS reverse proxy, four default libraries, shared Samba/WebDAV storage identity, audio scan, playback metadata, systemd supervision and restart'
+    echo 'updater_command=turnkey-mediaserver-update --check; turnkey-mediaserver-update --apply'
+    echo "updater_result=signed actual package update 10.11.10+deb13 to $candidate; admin re-login, four libraries, indexed media, and source provenance persisted"
     echo 'updater_channel=official Jellyfin stable APT packages for Debian 13'
     echo 'integrity_evidence=APT key fingerprint 4918AABC486CA052358D778D49023CD01DE21A7B and dpkg installed package version'
 } > "$result"
