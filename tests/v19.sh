@@ -17,6 +17,7 @@ cleanup() {
 trap cleanup EXIT
 
 [ -s "$SOURCE_RECORD" ]
+[ ! -e /etc/jellyfin/turnkey-bootstrap-password ]
 grep -qx 'repository=https://repo.jellyfin.org/debian' "$SOURCE_RECORD"
 grep -qx 'suite=trixie' "$SOURCE_RECORD"
 grep -qx 'signing_fingerprint=4918AABC486CA052358D778D49023CD01DE21A7B' \
