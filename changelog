@@ -1,3 +1,17 @@
+turnkey-mediaserver-19.0 (1) turnkey; urgency=low
+
+  * Update the appliance base to Debian 13 (Trixie).
+
+  * Install Jellyfin from its signed stable Debian 13 package repository.
+
+  * Configure the Jellyfin administrator through the supported API instead of
+    editing its private database schema.
+
+  * Add a signed-package update helper and v19 acceptance coverage for login,
+    media scanning, playback metadata, service supervision, and proxy access.
+
+ -- TurnKey Linux release engineering <release@turnkeylinux.org>  Tue, 25 Aug 2026 00:00:00 +0000
+
 turnkey-mediaserver-18.1 (1) turnkey; urgency=low
 
   * Update Jellyfin to latest upstream - v10.9.9.

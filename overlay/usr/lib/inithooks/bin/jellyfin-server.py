@@ -1,73 +1,113 @@
 #!/usr/bin/python3
-# Copyright (c) 2015 Jonathan Struebel <jonathan.struebel@gmail.com>
-# Modified for Jellyfin 2019 TurnKey GNU/Linux <jeremy@turnkeylinux.org>
-"""Configure Jellyfin Media Server
+"""Set the Jellyfin administrator password during first boot."""
 
-Arguments:
-    none
-
-Options:
-    -p --pass=    if not provided, will ask interactively
-"""
-
+import argparse
+import json
+import os
 import sys
-import getopt
-import signal
-import hashlib
-import secrets
-import base64
-import sqlite3
+import urllib.error
+import urllib.request
 
-def fatal(s):
-    print("Error:", s, file=sys.stderr)
-    sys.exit(1)
 
-def usage(s=None):
-    if s:
-        print("Error:", s, file=sys.stderr)
-    print("Syntax: %s [options]" % sys.argv[0], file=sys.stderr)
-    print(__doc__, file=sys.stderr)
-    sys.exit(1)
+BASE_URL = "http://127.0.0.1:8096"
+BOOTSTRAP_PASSWORD_FILE = "/etc/jellyfin/turnkey-bootstrap-password"
+AUTHORIZATION = (
+    'MediaBrowser Client="TurnKey Linux", Device="First boot", '
+    'DeviceId="turnkey-firstboot", Version="19"'
+)
+
+
+def api_request(path, payload=None, token=None):
+    data = None if payload is None else json.dumps(payload).encode("utf-8")
+    headers = {
+        "Accept": "application/json",
+        "X-Emby-Authorization": AUTHORIZATION,
+    }
+    if payload is not None:
+        headers["Content-Type"] = "application/json"
+    if token:
+        headers["X-Emby-Token"] = token
+
+    request = urllib.request.Request(
+        BASE_URL + path,
+        data=data,
+        headers=headers,
+        method="POST" if payload is not None else "GET",
+    )
+    with urllib.request.urlopen(request, timeout=30) as response:
+        body = response.read()
+    return json.loads(body) if body else None
+
+
+def prompt_password():
+    try:
+        from libinithooks.dialog_wrapper import Dialog
+    except ImportError as error:
+        raise RuntimeError(
+            "a password must be supplied with --pass or --pass-stdin"
+        ) from error
+
+    dialog = Dialog("TurnKey Linux - First boot configuration")
+    return dialog.get_password(
+        "Jellyfin Password",
+        "Enter a new password for the Jellyfin administrator account.",
+    )
+
 
 def main():
-    signal.signal(signal.SIGINT, signal.SIG_IGN)
-    try:
-        opts, args = getopt.gnu_getopt(sys.argv[1:], "hp:", ['help', 'pass='])
-    except getopt.GetoptError as e:
-        usage(e)
-
-    password = ""
-    for opt, val in opts:
-        if opt in ('-h', '--help'):
-            usage()
-        elif opt in ('-p', '--pass'):
-            password = val
-
+    parser = argparse.ArgumentParser()
+    password_source = parser.add_mutually_exclusive_group()
+    password_source.add_argument("-p", "--pass", dest="password")
+    password_source.add_argument("--pass-stdin", action="store_true")
+    args = parser.parse_args()
+    if args.pass_stdin:
+        password = sys.stdin.read()
+    elif args.password is not None:
+        password = args.password
+    else:
+        password = prompt_password()
     if not password:
-        from libinithooks.dialog_wrapper import Dialog
-        d = Dialog('TurnKey GNU/Linux - First boot configuration')
-        password = d.get_password(
-            "Jellyfin User Password",
-            "Please enter new password for the Jellyfin Server jellyfin account.")
+        raise RuntimeError("the Jellyfin administrator password cannot be empty")
 
-    # taken from https://github.com/jellyfin/jellyfin/blob/master/MediaBrowser.Common/Cryptography/Constants.cs
-    salt = secrets.token_bytes(64)
-    iterations = 1000
-    dklen = 32
-    # dklen taken fromm the r.GetBytes(32) line at https://github.com/jellyfin/jellyfin/blob/master/Emby.Server.Implementations/Cryptography/CryptographyProvider.cs
-    hashed_pw = hashlib.pbkdf2_hmac("sha1", password.encode(), salt, iterations, dklen)
+    try:
+        with open(BOOTSTRAP_PASSWORD_FILE, encoding="utf-8") as password_file:
+            bootstrap_password = password_file.read().rstrip("\n")
+    except FileNotFoundError as error:
+        raise RuntimeError("the Jellyfin bootstrap credential is missing") from error
 
-    formatted_pw = '$PBKDF2$iterations={iterations}${salt}${hashed_pw}'.format(
-            iterations=iterations,
-            hashed_pw=base64.b16encode(hashed_pw).decode(),
-            salt=base64.b16encode(salt).decode())
+    try:
+        authentication = api_request(
+            "/Users/AuthenticateByName",
+            {"Username": "jellyfin", "Pw": bootstrap_password},
+        )
+        token = authentication.get("AccessToken") if authentication else None
+        if not isinstance(token, str) or not token:
+            raise RuntimeError("Jellyfin did not return an access token")
 
-    conn = sqlite3.connect('/var/lib/jellyfin/data/jellyfin.db')
-    c = conn.cursor()
-    c.execute('UPDATE Users SET Password=? WHERE Username=?;', (formatted_pw, "jellyfin"))
-    conn.commit()
-    conn.close()
+        api_request(
+            "/Users/Password",
+            {
+                "CurrentPw": bootstrap_password,
+                "NewPw": password,
+                "ResetPassword": False,
+            },
+            token,
+        )
+    except urllib.error.HTTPError as error:
+        detail = error.read().decode("utf-8", errors="replace").strip()
+        message = f"Jellyfin returned HTTP {error.code}"
+        if detail:
+            message += f": {detail}"
+        raise RuntimeError(message) from error
+    except urllib.error.URLError as error:
+        raise RuntimeError(f"cannot reach Jellyfin: {error.reason}") from error
+
+    os.unlink(BOOTSTRAP_PASSWORD_FILE)
+
 
 if __name__ == "__main__":
-    main()
-
+    try:
+        main()
+    except RuntimeError as error:
+        print(f"error: {error}", file=sys.stderr)
+        sys.exit(1)
