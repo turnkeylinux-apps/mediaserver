@@ -1,5 +1,8 @@
 turnkey-mediaserver-19.0.3 (1) turnkey; urgency=medium
 
+  * Wait for Jellyfin startup before setting its administrator password.
+    Retry temporary startup responses during the initial authentication.
+
   * Connect app email, dynamic DNS and backup setup through the Hub helper.
   * Include the current HubDNS and certificate setup/renewal fixes.
   * Restore backups reliably through Webmin Restore and Advanced options.

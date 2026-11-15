@@ -5,6 +5,7 @@ import argparse
 import json
 import os
 import sys
+import time
 import urllib.error
 import urllib.request
 
@@ -76,10 +77,19 @@ def main():
         raise RuntimeError("the Jellyfin bootstrap credential is missing") from error
 
     try:
-        authentication = api_request(
-            "/Users/AuthenticateByName",
-            {"Username": "jellyfin", "Pw": bootstrap_password},
-        )
+        # The health endpoint can succeed while startup still returns HTTP 503.
+        for attempt in range(6):
+            try:
+                authentication = api_request(
+                    "/Users/AuthenticateByName",
+                    {"Username": "jellyfin", "Pw": bootstrap_password},
+                )
+                break
+            except urllib.error.HTTPError as error:
+                if error.code != 503 or attempt == 5:
+                    raise
+                error.close()
+                time.sleep(5)
         token = authentication.get("AccessToken") if authentication else None
         if not isinstance(token, str) or not token:
             raise RuntimeError("Jellyfin did not return an access token")
